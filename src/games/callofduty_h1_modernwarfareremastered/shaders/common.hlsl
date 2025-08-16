@@ -20,51 +20,25 @@ float3 PumboAutoHDR(float3 sdr_color, float shoulder_pow = 2.75f) {
   return sdr_color * renodx::math::SafeDivision(auto_HDR_total_ratio, SDRRatio, 1);  // Fallback on a value of 1 in case of division by 0
 }
 
-// float Max(float4 v) {
-//   return renodx::math::Max(v.x, v.y, v.z, v.w);
-// }
-
-// float Max(float3 v) {
-//   return renodx::math::Max(v.x, v.y, v.z);
-// }
-
-// float Max(float2 v) {
-//   return max(v.x, v.y);
-// }
-
-// float Min(float4 v) {
-//   return renodx::math::Min(v.x, v.y, v.z, v.w);
-// }
-
-// float Min(float3 v) {
-//   return renodx::math::Min(v.x, v.y, v.z);
-// }
-
-// float Min(float2 v) {
-//   return min(v.x, v.y);
-// }
-
+//https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/047_InverseInterpolationAndRemap/Interpolation.cginc
 float invLerp(float from, float to, float value) {
   return (value - from) / (to - from);
 }
-
 float4 invLerp(float4 from, float4 to, float4 value) {
   return (value - from) / (to - from);
 }
-
 float remap(float origFrom, float origTo, float targetFrom, float targetTo, float value){
   float rel = invLerp(origFrom, origTo, value);
   return lerp(targetFrom, targetTo, rel);
 }
-
 float4 remap(float4 origFrom, float4 origTo, float4 targetFrom, float4 targetTo, float4 value){
   float4 rel = invLerp(origFrom, origTo, value);
   return lerp(targetFrom, targetTo, rel);
 }
 
-float Tonemap_GetY(float3 color, float multiplier = 1) {
+float Tonemap_GetY(float3 color) {
   // return renodx::color::y::from::BT709(color.xyz * multiplier);
-  return renodx::color::y::from::BT709(color) * multiplier;
+  return renodx::color::y::from::BT709(color);
 }
 
 void ADSSights_Scale(inout float4 o0) {
@@ -141,19 +115,17 @@ void Tonemap_RecoverYFromW(inout float4 r0) {
 static renodx::debug::graph::Config graph_config; //performance? mt safe?
 void Tonemap_Do(inout float4 r0, float3 colorUntonemapped, float3 colorTonemapped, float3 colorSDRNeutral, float2 uv, Texture2D<float4> texColor) {
   if (RENODX_TONE_MAP_TYPE > 0) {
-    //graph
+    //graph start
     graph_config = renodx::debug::graph::DrawStart(uv, colorUntonemapped, texColor, RENODX_PEAK_WHITE_NITS, RENODX_DIFFUSE_WHITE_NITS);
 
+    //decode
+    colorSDRNeutral = renodx::color::srgb::DecodeSafe(colorSDRNeutral);
     colorTonemapped = renodx::color::srgb::DecodeSafe(colorTonemapped);
 
     //ToneMapPass
-    // r0.xyz = CUSTOM_LUMINANCE_MODE == 0 ? 
-    //   renodx::draw::ToneMapPass(colorUntonemapped, colorTonemapped) : 
-    //   renodx::draw::ToneMapPass(colorUntonemapped, colorTonemapped, renodx::color::srgb::DecodeSafe(colorSDRNeutral));
+    r0.xyz = renodx::draw::ToneMapPass(colorUntonemapped, colorTonemapped, colorSDRNeutral);
 
-    r0.xyz = renodx::draw::ToneMapPass(colorUntonemapped, colorTonemapped, renodx::color::srgb::DecodeSafe(colorSDRNeutral));
-
-
+    //graph end
     if (CUSTOM_IS_CALIBRATION) r0.xyz = renodx::debug::graph::DrawEnd(r0.xyz, graph_config);
   } else {
     //just decode original

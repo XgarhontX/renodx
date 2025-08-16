@@ -93,7 +93,6 @@ void main(
   //   r0.xyz = renodx::draw::RenderIntermediatePass(r0.xyz);
   // }
 
-
   //out
   o0.xyz = r0.xyz;
   o0.w = 1;

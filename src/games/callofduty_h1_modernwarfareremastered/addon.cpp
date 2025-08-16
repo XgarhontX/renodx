@@ -18,6 +18,9 @@
 #include "../../utils/settings.hpp"
 #include "./shared.h"
 
+const std::string build_date = __DATE__;
+const std::string build_time = __TIME__;
+
 namespace {
 
 renodx::mods::shader::CustomShaders custom_shaders = {
@@ -64,7 +67,7 @@ renodx::utils::settings::Settings settings = {
         .label = "Reset All",
         .group = "button-line-1",
         .on_change = []() {
-          for (auto setting : settings) {
+          for (auto* setting : settings) {
             if (setting->key.empty()) continue;
             if (!setting->can_reset) continue;
             renodx::utils::settings::UpdateSetting(setting->key, setting->default_value);
@@ -73,7 +76,30 @@ renodx::utils::settings::Settings settings = {
         },
     },
 
-    // Tone Mapper
+    // ReadMe //////////////////////////////////////////////////////////////////////////////////////
+    new renodx::utils::settings::Setting{
+        .value_type = renodx::utils::settings::SettingValueType::BULLET,
+        .label = "Use Borderless Fullscreen if Exclusive doesn't create HDR output.",
+        .section = "Read Me",
+    },
+    new renodx::utils::settings::Setting{
+        .value_type = renodx::utils::settings::SettingValueType::BULLET,
+        .label = "Anti-Aliasing modes: Filmic sharpness depends on UI brightness, and T2x flickers.\n"
+                 "Please use the other modes and Super Sampling.",
+        .section = "Read Me",
+    },
+    new renodx::utils::settings::Setting{
+        .value_type = renodx::utils::settings::SettingValueType::BULLET,
+        .label = "The HDR image is very neutral. You might want to increase Contrast.",
+        .section = "Read Me",
+    },
+    new renodx::utils::settings::Setting{
+        .value_type = renodx::utils::settings::SettingValueType::TEXT,
+        .label = "",
+        .section = "Read Me",
+    },
+
+    // Tone Mapper //////////////////////////////////////////////////////////////////////////////////////
     new renodx::utils::settings::Setting{
         .key = "ToneMapType",
         .binding = &shader_injection.tone_map_type,
@@ -230,7 +256,7 @@ renodx::utils::settings::Settings settings = {
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::TEXT,
         .label = "",  // Spacer ////////////////////////////////////////////////////
-        .section = "Color Grading",
+        .section = "PreExposure",
         .is_visible = []() { return current_settings_mode >= 1; },
     },
     new renodx::utils::settings::Setting{
@@ -291,44 +317,14 @@ renodx::utils::settings::Settings settings = {
         .section = "PreExposure",
         .is_visible = []() { return current_settings_mode >= 1; },
     },
-    // new renodx::utils::settings::Setting{
-    //     .key = "CustomCompressorPow",
-    //     .binding = &shader_injection.custom_compressor_pow,
-    //     .default_value = 0.9f,
-    //     .label = "Compressor Power",
-    //     .section = "PreExposure",
-    //     .tooltip = "color ^ power.",
-    //     .max = 2.f,
-    //     .format = "%.2f",
-    //     .is_visible = []() { return current_settings_mode >= 1; },
-    // },
-    // new renodx::utils::settings::Setting{
-    //     .key = "CustomCompressorGain",
-    //     .binding = &shader_injection.custom_compressor_gain,
-    //     .default_value = 2.f,
-    //     .label = "Compressor Threshold",
-    //     .section = "PreExposure",
-    //     .tooltip = "\"Color ^ Power\".\n"
-    //                "So, < 0 compress, > 0 boost.",
-    //     .min = 0.01f,
-    //     .max = 3.f,
-    //     .format = "%.2f",
-    //     .is_enabled = []() { return shader_injection.custom_compressor_pow != 1; },
-    //     .parse = [](float value) { return value; },
-    //     .is_visible = []() { return current_settings_mode >= 1; },
-    // },
-    // new renodx::utils::settings::Setting{
-    //     .value_type = renodx::utils::settings::SettingValueType::TEXT,
-    //     .label = "",  // Spacer /////////////////////////////////////////////////////
-    //     .section = "PreExposure",
-    //     .is_visible = []() { return current_settings_mode >= 1; },
-    // },
+
     new renodx::utils::settings::Setting{
         .key = "CustomColorGradePreExposureFinal",
         .binding = &shader_injection.custom_preexposure_final,
-        .default_value = 0.15f,
+        .default_value = 0.1f,
         .label = "PreExposure Final Multiplier",
         .section = "PreExposure",
+        .tooltip = "The final multiplier for PreExposure.",
         .max = 1.f,
         .format = "%.2f",
         // .is_visible = []() { return current_settings_mode >= 1; },
@@ -368,7 +364,7 @@ renodx::utils::settings::Settings settings = {
     new renodx::utils::settings::Setting{
         .key = "ColorGradeContrast",
         .binding = &shader_injection.tone_map_contrast,
-        .default_value = 55.f,
+        .default_value = 50.f,
         .label = "Contrast",
         .section = "Color Grading",
         .max = 100.f,
@@ -398,7 +394,7 @@ renodx::utils::settings::Settings settings = {
     new renodx::utils::settings::Setting{
         .key = "ColorGradeBlowout",
         .binding = &shader_injection.tone_map_blowout,
-        .default_value = 0.f,
+        .default_value = 1.f,
         .label = "Blowout",
         .section = "Color Grading",
         .tooltip = "Controls highlight desaturation due to overexposure.",
@@ -532,6 +528,54 @@ renodx::utils::settings::Settings settings = {
         .parse = [](float value) { return value - 1.f; },
         .is_visible = []() { return current_settings_mode >= 2; },
     },
+
+    // Credits & Buttons //////////////////////////////////////////////////////////////////////////////////////
+    new renodx::utils::settings::Setting{
+        .value_type = renodx::utils::settings::SettingValueType::BULLET,
+        .label = "Game Mod: XgarhontX\n",
+        .section = "Credits",
+    },
+    new renodx::utils::settings::Setting{
+        .value_type = renodx::utils::settings::SettingValueType::BULLET,
+        .label = "RenoDX: clshortfuse\n",
+        .section = "Credits",
+    },
+    new renodx::utils::settings::Setting{
+        .value_type = renodx::utils::settings::SettingValueType::BULLET,
+        .label = "PumboAutoHDR (loading movies): Filoppi (Pumbo)",
+        .section = "Credits",
+    },
+
+    new renodx::utils::settings::Setting{
+        .value_type = renodx::utils::settings::SettingValueType::BUTTON,
+        .label = "HDRDen Discord",
+        .section = "Credits",
+        .group = "button-line-1",
+        .tint = 0x5865F2,
+        .on_change = []() {
+          renodx::utils::platform::LaunchURL("https://discord.gg/", "5WZXDpmbpP");
+        },
+    },
+    new renodx::utils::settings::Setting{
+        .value_type = renodx::utils::settings::SettingValueType::BUTTON,
+        .label = "More Mods",
+        .section = "Credits",
+        .group = "button-line-1",
+        .tint = 0x2B3137,
+        .on_change = []() {
+          renodx::utils::platform::LaunchURL("https://github.com/clshortfuse/renodx/wiki/Mods");
+        },
+    },
+    new renodx::utils::settings::Setting{
+        .value_type = renodx::utils::settings::SettingValueType::TEXT,
+        .label = "Build Date: " + build_date + " - " + build_time,
+        .section = "Credits",
+    },
+    new renodx::utils::settings::Setting{
+        .value_type = renodx::utils::settings::SettingValueType::TEXT,
+        .label = "",
+        .section = "Credits",
+    },
 };
 
 // const std::unordered_map<std::string, reshade::api::format> UPGRADE_TARGETS = {
@@ -584,9 +628,16 @@ void OnInitSwapchain(reshade::api::swapchain* swapchain, bool resize) {
   if (!peak.has_value()) {
     peak = 1000.f;
   }
-  settings[3]->default_value = peak.value();
-  settings[3]->can_reset = true;
-  //   settings[3]->default_value = renodx::utils::swapchain::ComputeReferenceWhite(peak.value());
+
+  // find and set
+  for (auto& setting : settings) {
+    if (setting->binding != &shader_injection.peak_white_nits) continue;
+    setting->default_value = peak.value();
+    setting->can_reset = true;
+    break;
+  }
+
+  // settings[3]->default_value = renodx::utils::swapchain::ComputeReferenceWhite(peak.value());
 }
 
 extern "C" __declspec(dllexport) constexpr const char* NAME = "RenoDX";
@@ -663,7 +714,7 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
         // });
         renodx::mods::swapchain::swap_chain_upgrade_targets.push_back({
             .old_format = reshade::api::format::r11g11b10_float,
-            .new_format = reshade::api::format::r16g16b16a16_float,  // required for y-ratio in tonemap0
+            .new_format = reshade::api::format::r16g16b16a16_float,  // required for y recovery in tonemap0
             .ignore_size = true,
             .use_resource_view_cloning = false,
             .aspect_ratio = renodx::mods::swapchain::SwapChainUpgradeTarget::BACK_BUFFER,

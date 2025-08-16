@@ -36,16 +36,6 @@ void main(
   float y;
   float3 colorUntonemapped; 
 
-  //debug color buffers
-  // if (RENODX_TONE_MAP_TYPE == 1) {
-  //   // if (v1.x < 1/3) o0.xyz = cb4[0].xxx;
-  //   // else if (v1.x < 2/3) o0.xyz = cb4[0].yyy;
-  //   // else if (v1.x < 3/3) o0.xyz = cb4[0].zzz;
-
-  //   if (r1.x < 1/3) o0.xyz = cb4[0].zzz;
-  //   return;
-  // }
-
   //sample bloom
   r0.xy = max(cb2[32].xy, v1.xy);
   r0.xy = min(cb2[32].zw, r0.xy);
@@ -98,12 +88,11 @@ void main(
 
   //blowout colorUntonemapped
   // if (y > 0.05) {
-  //   colorUntonemapped = renodx::color::correct::ChrominanceICtCp(
-  //     colorUntonemapped, r0.xyz, max(1, invLerp(0.05, 0.1, y))
+  //   colorUntonemapped = renodx::color::correct::HueICtCp(
+  //     colorUntonemapped, r0.xyz, max(0.5, invLerp(0.01, 0.1, y) * 0.25)
   //   );
   //   // colorUntonemapped = (float3)0;
   // }
-
 
   //out
   // o0.xyz = r0.xyz;
