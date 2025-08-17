@@ -5,7 +5,8 @@
 // This is hue conserving and only really affects highlights.
 // "sdr_color" is meant to be in "SDR range", as in, a value of 1 matching SDR white (something between 80, 100, 203, 300 nits, or whatever else)
 // https://github.com/Filoppi/PumboAutoHDR
-float3 PumboAutoHDR(float3 sdr_color, float shoulder_pow = 2.75f) {
+float3 PumboAutoHDR(float3 sdr_color) {
+  const float shoulder_pow = CUSTOM_MOV_SHOULDERPOW;
   const float SDRRatio = max(renodx::color::y::from::BT2020(sdr_color), 0.f);
 
   // Limit AutoHDR brightness, it won't look good beyond a certain level.
@@ -20,20 +21,27 @@ float3 PumboAutoHDR(float3 sdr_color, float shoulder_pow = 2.75f) {
   return sdr_color * renodx::math::SafeDivision(auto_HDR_total_ratio, SDRRatio, 1);  // Fallback on a value of 1 in case of division by 0
 }
 
-//https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/047_InverseInterpolationAndRemap/Interpolation.cginc
-float invLerp(float from, float to, float value) {
-  return (value - from) / (to - from);
-}
-float4 invLerp(float4 from, float4 to, float4 value) {
-  return (value - from) / (to - from);
-}
-float remap(float origFrom, float origTo, float targetFrom, float targetTo, float value){
-  float rel = invLerp(origFrom, origTo, value);
-  return lerp(targetFrom, targetTo, rel);
-}
-float4 remap(float4 origFrom, float4 origTo, float4 targetFrom, float4 targetTo, float4 value){
-  float4 rel = invLerp(origFrom, origTo, value);
-  return lerp(targetFrom, targetTo, rel);
+// //https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/047_InverseInterpolationAndRemap/Interpolation.cginc
+// float invLerp(float from, float to, float value) {
+//   return (value - from) / (to - from);
+// }
+// float4 invLerp(float4 from, float4 to, float4 value) {
+//   return (value - from) / (to - from);
+// }
+// float remap(float origFrom, float origTo, float targetFrom, float targetTo, float value){
+//   float rel = invLerp(origFrom, origTo, value);
+//   return lerp(targetFrom, targetTo, rel);
+// }
+// float4 remap(float4 origFrom, float4 origTo, float4 targetFrom, float4 targetTo, float4 value){
+//   float4 rel = invLerp(origFrom, origTo, value);
+//   return lerp(targetFrom, targetTo, rel);
+// }
+
+void Tonemap_UpgradeTonemap0(inout float3 colorUntonemapped, in float4 r0) {
+  colorUntonemapped = renodx::tonemap::UpgradeToneMap(
+    colorUntonemapped, r0.xyz, r0.xyz, 
+    CUSTOM_UPGRADETONEMAP_POSTPROCESS, CUSTOM_UPGRADETONEMAP_AUTO
+  );
 }
 
 float Tonemap_GetY(float3 color) {

@@ -48,11 +48,9 @@ void main(
 #endif
 
   //colorUntonemapped
-  // Tonemap_PrepColorUntonemapped(colorUntonemapped, r0);
   colorUntonemapped = r0.xyz;
 
-  //recover r0 from Tonemap0 (slight hue shift loss maybe)
-  // if (RENODX_TONE_MAP_TYPE > 0) r0.xyz = renodx::tonemap::Reinhard(r0.xyz);
+  //recover r0 from Tonemap0
   Tonemap_RecoverYFromW(r0);
 
 #ifdef DEBUG_MODE

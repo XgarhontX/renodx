@@ -90,7 +90,13 @@ renodx::utils::settings::Settings settings = {
     },
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::BULLET,
-        .label = "The HDR image is very neutral. You might want to increase Contrast.",
+        .label = "The HDR image is very neutral. You might want to play with Contrast and Shadow.",
+        .section = "Read Me",
+    },
+    new renodx::utils::settings::Setting{
+        .value_type = renodx::utils::settings::SettingValueType::BULLET,
+        .label = "This was created using default brightness in game settings."
+                 "\nProbably best to reset it. (In config.cfg, it's hash 0x45CB3517 = 0.)",
         .section = "Read Me",
     },
     new renodx::utils::settings::Setting{
@@ -144,6 +150,17 @@ renodx::utils::settings::Settings settings = {
         .max = 500.f,
     },
     new renodx::utils::settings::Setting{
+        .key = "CustomMovieShoulderPow",
+        .binding = &shader_injection.custom_mov_shoulderpow,
+        .default_value = 2.75f,
+        .label = "Movie AutoHDR Shoulder Power",
+        .section = "Tone Mapping",
+        .tooltip = "When should PumboAutoHDR brighten the image.",
+        .min = 1.f,
+        .max = 5.f,
+        .format = "%.2f",
+    },
+    new renodx::utils::settings::Setting{
         .key = "GammaCorrection",
         .binding = &shader_injection.gamma_correction,
         .value_type = renodx::utils::settings::SettingValueType::INTEGER,
@@ -158,7 +175,7 @@ renodx::utils::settings::Settings settings = {
         .key = "ToneMapScaling",
         .binding = &shader_injection.tone_map_per_channel,
         .value_type = renodx::utils::settings::SettingValueType::INTEGER,
-        .default_value = 1.f,
+        .default_value = 0.f,
         .label = "Scaling",
         .section = "Tone Mapping",
         .tooltip = "Luminance scales colors consistently while per-channel saturates and blows out sooner",
@@ -213,7 +230,7 @@ renodx::utils::settings::Settings settings = {
         .max = 100.f,
         .is_enabled = []() { return shader_injection.tone_map_type >= 1; },
         .parse = [](float value) { return value * 0.01f; },
-        .is_visible = []() { return current_settings_mode >= 1; },
+        .is_visible = []() { return current_settings_mode >= 2; },
     },
     new renodx::utils::settings::Setting{
         .key = "ToneMapClampColorSpace",
@@ -251,71 +268,71 @@ renodx::utils::settings::Settings settings = {
         .label = "Calibration Heat Map",
         .section = "PreExposure",
         .tooltip = "Pink (shadow), Green (mid), Gray (high), Cyan (clip)",
-        .is_visible = []() { return current_settings_mode >= 1; },
+        // .is_visible = []() { return current_settings_mode >= 1; },
     },
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::TEXT,
         .label = "",  // Spacer ////////////////////////////////////////////////////
         .section = "PreExposure",
-        .is_visible = []() { return current_settings_mode >= 1; },
+        .is_visible = []() { return current_settings_mode >= 2; },
     },
     new renodx::utils::settings::Setting{
         .key = "CustomColorGradePreExposureOffsetMode",
         .binding = &shader_injection.custom_preexposure_offset_mode,
         .value_type = renodx::utils::settings::SettingValueType::INTEGER,
         .default_value = 2.f,
-        .label = "PreExposure Offset Mode",
+        .label = "Offset Mode",
         .section = "PreExposure",
         .tooltip = "From the unbrighten linear output, the game picks brightness targets for highs, mids, shadows.\n"
-                   "Which value will be the target for our HDR image?",
+                   "Which value will be the target for the HDR image?",
         .labels = {"Highlights", "Mids", "Shadows"},
-        .is_visible = []() { return current_settings_mode >= 1; },
+        .is_visible = []() { return current_settings_mode >= 2; },
     },
     new renodx::utils::settings::Setting{
         .key = "CustomColorGradePreExposureOffsetMultiplier",
         .binding = &shader_injection.custom_preexposure_offset_multiplier,
         .default_value = 1.f,
-        .label = "PreExposure Offset Multiplier",
+        .label = "Offset Multiplier",
         .section = "PreExposure",
         .tooltip = "The amount to brighten.",
         .max = 1.f,
         .format = "%.2f",
-        .is_visible = []() { return current_settings_mode >= 1; },
+        .is_visible = []() { return current_settings_mode >= 2; },
     },
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::TEXT,
         .label = "",  // Spacer /////////////////////////////////////////////////////
         .section = "PreExposure",
-        .is_visible = []() { return current_settings_mode >= 1; },
+        .is_visible = []() { return current_settings_mode >= 2; },
     },
     new renodx::utils::settings::Setting{
         .key = "CustomColorGradePreExposureAutoMode",
         .binding = &shader_injection.custom_preexposure_auto_mode,
         .value_type = renodx::utils::settings::SettingValueType::INTEGER,
         .default_value = 1.f,
-        .label = "PreExposure AutoExposure Mode",
+        .label = "AutoExposure Mode",
         .section = "PreExposure",
         .tooltip = "The game has autoexposure for highs, mids, and shadows.\n"
-                   "Which value will be the target for our HDR image?",
+                   "Which value will be the target for the HDR image?",
         .labels = {"Highlights", "Mids", "Shadows"},
-        .is_visible = []() { return current_settings_mode >= 1; },
+        .is_visible = []() { return current_settings_mode >= 2; },
     },
     new renodx::utils::settings::Setting{
         .key = "CustomColorGradePreExposureAutoMultiplier",
         .binding = &shader_injection.custom_preexposure_auto_multiplier,
         .default_value = 1.f,
-        .label = "PreExposure AutoExposure Multiplier",
+        .label = "AutoExposure Multiplier",
         .section = "PreExposure",
         .tooltip = "The autoexposure strength.",
         .max = 1.f,
         .format = "%.2f",
-        .is_visible = []() { return current_settings_mode >= 1; },
+        .is_visible = []() { return current_settings_mode >= 2; },
     },
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::TEXT,
         .label = "",  // Spacer /////////////////////////////////////////////////////
         .section = "PreExposure",
-        .is_visible = []() { return current_settings_mode >= 1; },
+        .is_visible = []() { return current_settings_mode >= 2; },
     },
 
     new renodx::utils::settings::Setting{
@@ -328,6 +345,32 @@ renodx::utils::settings::Settings settings = {
         .max = 1.f,
         .format = "%.2f",
         // .is_visible = []() { return current_settings_mode >= 1; },
+    },
+    // Upgrade Tonemap //////////////////////////////////////////////////////////////////////////////////////
+    new renodx::utils::settings::Setting{
+        .key = "CustomUpgradeTonemapPostProcess",
+        .binding = &shader_injection.custom_upgradetonemap_postprocess,
+        .value_type = renodx::utils::settings::SettingValueType::FLOAT,
+        .default_value = 100.f,
+        .label = "Post Process Amount",
+        .section = "Upgrade Tone Map",
+        .tooltip = "Hue and Saturation adjustment amount for untonemapped linear color before LUT and RenoDRT.\n"
+                   "Reducing this restores blowout, but the LUT will be sampled incorrectly, leading to highlights hue shifting.",
+        .max = 100.f,
+        .parse = [](float value) { return value * 0.01f; },
+        .is_visible = []() { return current_settings_mode >= 2; },
+    },
+    new renodx::utils::settings::Setting{
+        .key = "CustomUpgradeTonemapAuto",
+        .binding = &shader_injection.custom_upgradetonemap_auto,
+        .value_type = renodx::utils::settings::SettingValueType::FLOAT,
+        .default_value = 0.f,
+        .label = "Auto Correction Amount",
+        .section = "Upgrade Tone Map",
+        .tooltip = "Subsitute the SDR image's luminance in place of the HDR's.\n",
+        .max = 100.f,
+        .parse = [](float value) { return value * 0.01f; },
+        .is_visible = []() { return current_settings_mode >= 2; },
     },
 
     // Color Grading //////////////////////////////////////////////////////////////////////////////////////
@@ -394,7 +437,7 @@ renodx::utils::settings::Settings settings = {
     new renodx::utils::settings::Setting{
         .key = "ColorGradeBlowout",
         .binding = &shader_injection.tone_map_blowout,
-        .default_value = 1.f,
+        .default_value = 0.f,
         .label = "Blowout",
         .section = "Color Grading",
         .tooltip = "Controls highlight desaturation due to overexposure.",
@@ -424,7 +467,7 @@ renodx::utils::settings::Settings settings = {
         .parse = [](float value) { return value * 0.01f; },
     },
 
-    // Extra
+    // Extra //////////////////////////////////////////////////////////////////////////////////////
     new renodx::utils::settings::Setting{
         .key = "CustomBloomMultiplier",
         .binding = &shader_injection.custom_bloom_multiplier,
@@ -455,7 +498,7 @@ renodx::utils::settings::Settings settings = {
         .tooltip = "Side feature. Might not comprehensive.",
     },
 
-    // Advanced
+    // Advanced //////////////////////////////////////////////////////////////////////////////////////
     new renodx::utils::settings::Setting{
         .key = "SwapChainCustomColorSpace",
         .binding = &shader_injection.swap_chain_custom_color_space,
@@ -641,7 +684,7 @@ void OnInitSwapchain(reshade::api::swapchain* swapchain, bool resize) {
 }
 
 extern "C" __declspec(dllexport) constexpr const char* NAME = "RenoDX";
-extern "C" __declspec(dllexport) constexpr const char* DESCRIPTION = "RenoDX (Call of  Duty: Mordern Warfare Remastered)";
+extern "C" __declspec(dllexport) constexpr const char* DESCRIPTION = "RenoDX (Call of Duty: Mordern Warfare Remastered)";
 
 BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
   switch (fdw_reason) {

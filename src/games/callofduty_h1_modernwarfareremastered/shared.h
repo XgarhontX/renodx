@@ -76,7 +76,11 @@ struct ShaderInjectData {
   float custom_preexposure_offset_mode;
   float custom_preexposure_auto_multiplier;
   float custom_preexposure_auto_mode;
-  float custom_luminance_mode;
+  
+  float custom_mov_shoulderpow;
+
+  float custom_upgradetonemap_postprocess;
+  float custom_upgradetonemap_auto;
 
   float custom_is_calibration;
   float custom_bloom_multiplier;
@@ -136,6 +140,11 @@ cbuffer shader_injection : register(b13) {
 #define CUSTOM_PREEXPOSURE_OFFSET_MULTIPLIER shader_injection.custom_preexposure_offset_multiplier
 #define CUSTOM_PREEXPOSURE_AUTO_MODE         shader_injection.custom_preexposure_auto_mode
 #define CUSTOM_PREEXPOSURE_AUTO_MULTIPLIER   shader_injection.custom_preexposure_auto_multiplier
+
+#define CUSTOM_MOV_SHOULDERPOW shader_injection.custom_mov_shoulderpow
+
+#define CUSTOM_UPGRADETONEMAP_POSTPROCESS shader_injection.custom_upgradetonemap_postprocess
+#define CUSTOM_UPGRADETONEMAP_AUTO        shader_injection.custom_upgradetonemap_auto
 
 #define CUSTOM_IS_CALIBRATION      shader_injection.custom_is_calibration
 #define CUSTOM_BLOOM_MULTIPLIER    shader_injection.custom_bloom_multiplier

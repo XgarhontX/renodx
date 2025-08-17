@@ -33,7 +33,6 @@ void main(
   uint4 bitmask, uiDest;
   float4 fDest;
 
-  float y;
   float3 colorUntonemapped; 
 
   //sample bloom
@@ -83,23 +82,15 @@ void main(
 
   // float3 colorTonemapped = r0.xyz;
 
-  //y
-  y = Tonemap_GetY(r0.xyz);
-
-  //blowout colorUntonemapped
-  // if (y > 0.05) {
-  //   colorUntonemapped = renodx::color::correct::HueICtCp(
-  //     colorUntonemapped, r0.xyz, max(0.5, invLerp(0.01, 0.1, y) * 0.25)
-  //   );
-  //   // colorUntonemapped = (float3)0;
-  // }
+  //upgrade
+  Tonemap_UpgradeTonemap0(colorUntonemapped, r0);
 
   //out
   // o0.xyz = r0.xyz;
   o0.xyz = RENODX_TONE_MAP_TYPE > 0 ? colorUntonemapped.xyz : r0.xyz;
 
-  //y ratio
+  //recovery
   // o0.w = 1;
-  o0.w = y;
+  o0.w = Tonemap_GetY(r0.xyz);
   return;
 }

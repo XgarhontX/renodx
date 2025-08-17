@@ -37,7 +37,7 @@ void main(
   // Tonemap_PrepColorUntonemapped(colorUntonemapped, r0);
   colorUntonemapped = r0.xyz;
 
-  //recover r0 from Tonemap0 (slight hue shift loss maybe)
+  //recover r0 from Tonemap0
   Tonemap_RecoverYFromW(r0);
 
   //color clamp
