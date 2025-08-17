@@ -37,16 +37,27 @@ float3 PumboAutoHDR(float3 sdr_color) {
 //   return lerp(targetFrom, targetTo, rel);
 // }
 
+float Tonemap_GetY(float3 color) {
+  return renodx::color::y::from::BT709(color);
+}
+
+void Tonemap_SaveBlacks( in float3 colorUntonemapped, inout float4 r0) {
+  // if (CUSTOM_UPGRADETONEMAP_SAVEBLACKS == 0) return;
+  if (Tonemap_GetY(r0.xyz) <= CUSTOM_UPGRADETONEMAP_SAVEBLACKS)
+    r0.xyz = renodx::color::correct::Luminance(colorUntonemapped, Tonemap_GetY(colorUntonemapped), CUSTOM_UPGRADETONEMAP_SAVEBLACKS);
+}
+
 void Tonemap_UpgradeTonemap0(inout float3 colorUntonemapped, in float4 r0) {
+  if (RENODX_TONE_MAP_TYPE == 0) return;
+
+  //save blacks
+  Tonemap_SaveBlacks(colorUntonemapped, r0);
+
+  //upgrade
   colorUntonemapped = renodx::tonemap::UpgradeToneMap(
     colorUntonemapped, r0.xyz, r0.xyz, 
     CUSTOM_UPGRADETONEMAP_POSTPROCESS, CUSTOM_UPGRADETONEMAP_AUTO
   );
-}
-
-float Tonemap_GetY(float3 color) {
-  // return renodx::color::y::from::BT709(color.xyz * multiplier);
-  return renodx::color::y::from::BT709(color);
 }
 
 void ADSSights_Scale(inout float4 o0) {
@@ -60,22 +71,24 @@ void Tonemap_BloomScale(inout float4 color) {
 
 float PreExposure_GetOffset(float4 v) {
   float result;
-  switch (CUSTOM_PREEXPOSURE_OFFSET_MODE) {
-    case 0: result = v.x; break;
-    case 1: result = v.y; break;
-    default: result = v.z; break;
-  }
+  // switch (CUSTOM_PREEXPOSURE_OFFSET_MODE) {
+  //   case 0: result = v.x; break;
+  //   case 1: result = v.y; break;
+  //   default: result = v.z; break;
+  // }
+  result = max(v.y, v.z);
   result *= CUSTOM_PREEXPOSURE_OFFSET_MULTIPLIER;
   return result;
 }
 
 float PreExposure_GetAutoexposure(float4 v) {
-    float result;
-  switch (CUSTOM_PREEXPOSURE_AUTO_MODE) {
-    case 0: result = v.x; break;
-    case 1: result = v.y; break;
-    default: result = v.z; break;
-  }
+  float result;
+  // switch (CUSTOM_PREEXPOSURE_AUTO_MODE) {
+  //   case 0: result = v.x; break;
+  //   case 1: result = v.y; break;
+  //   default: result = v.z; break;
+  // }
+  result = v.y;
   result *= CUSTOM_PREEXPOSURE_AUTO_MULTIPLIER;
   return result;
 }

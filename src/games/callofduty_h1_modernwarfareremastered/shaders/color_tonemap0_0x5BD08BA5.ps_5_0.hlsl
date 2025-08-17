@@ -72,7 +72,7 @@ void main(
     r1.xyz = r1.xyz * cb4[2].yyy + r4.xyz;
     r0.xyz = r0.xyz * r1.xyz + r2.xyz;
     r0.xyz = r3.xyz / r0.xyz;
-    // r0.xyz = saturate(r0.xyz); //dont do it here, we will do it later anyways.
+    r0.xyz = saturate(r0.xyz);
 
     //some pow, idk, situational.
     r0.xyz = log2(r0.xyz);

@@ -270,24 +270,24 @@ renodx::utils::settings::Settings settings = {
         .tooltip = "Pink (shadow), Green (mid), Gray (high), Cyan (clip)",
         // .is_visible = []() { return current_settings_mode >= 1; },
     },
-    new renodx::utils::settings::Setting{
-        .value_type = renodx::utils::settings::SettingValueType::TEXT,
-        .label = "",  // Spacer ////////////////////////////////////////////////////
-        .section = "PreExposure",
-        .is_visible = []() { return current_settings_mode >= 2; },
-    },
-    new renodx::utils::settings::Setting{
-        .key = "CustomColorGradePreExposureOffsetMode",
-        .binding = &shader_injection.custom_preexposure_offset_mode,
-        .value_type = renodx::utils::settings::SettingValueType::INTEGER,
-        .default_value = 2.f,
-        .label = "Offset Mode",
-        .section = "PreExposure",
-        .tooltip = "From the unbrighten linear output, the game picks brightness targets for highs, mids, shadows.\n"
-                   "Which value will be the target for the HDR image?",
-        .labels = {"Highlights", "Mids", "Shadows"},
-        .is_visible = []() { return current_settings_mode >= 2; },
-    },
+    // new renodx::utils::settings::Setting{
+    //     .value_type = renodx::utils::settings::SettingValueType::TEXT,
+    //     .label = "",  // Spacer ////////////////////////////////////////////////////
+    //     .section = "PreExposure",
+    //     .is_visible = []() { return current_settings_mode >= 2; },
+    // },
+    // new renodx::utils::settings::Setting{
+    //     .key = "CustomColorGradePreExposureOffsetMode",
+    //     .binding = &shader_injection.custom_preexposure_offset_mode,
+    //     .value_type = renodx::utils::settings::SettingValueType::INTEGER,
+    //     .default_value = 2.f,
+    //     .label = "Offset Mode",
+    //     .section = "PreExposure",
+    //     .tooltip = "From the unbrighten linear output, the game picks brightness targets for highs, mids, shadows.\n"
+    //                "Which value will be the target for the HDR image?",
+    //     .labels = {"Highlights", "Mids", "Shadows"},
+    //     .is_visible = []() { return current_settings_mode >= 2; },
+    // },
     new renodx::utils::settings::Setting{
         .key = "CustomColorGradePreExposureOffsetMultiplier",
         .binding = &shader_injection.custom_preexposure_offset_multiplier,
@@ -299,24 +299,24 @@ renodx::utils::settings::Settings settings = {
         .format = "%.2f",
         .is_visible = []() { return current_settings_mode >= 2; },
     },
-    new renodx::utils::settings::Setting{
-        .value_type = renodx::utils::settings::SettingValueType::TEXT,
-        .label = "",  // Spacer /////////////////////////////////////////////////////
-        .section = "PreExposure",
-        .is_visible = []() { return current_settings_mode >= 2; },
-    },
-    new renodx::utils::settings::Setting{
-        .key = "CustomColorGradePreExposureAutoMode",
-        .binding = &shader_injection.custom_preexposure_auto_mode,
-        .value_type = renodx::utils::settings::SettingValueType::INTEGER,
-        .default_value = 1.f,
-        .label = "AutoExposure Mode",
-        .section = "PreExposure",
-        .tooltip = "The game has autoexposure for highs, mids, and shadows.\n"
-                   "Which value will be the target for the HDR image?",
-        .labels = {"Highlights", "Mids", "Shadows"},
-        .is_visible = []() { return current_settings_mode >= 2; },
-    },
+    // new renodx::utils::settings::Setting{
+    //     .value_type = renodx::utils::settings::SettingValueType::TEXT,
+    //     .label = "",  // Spacer /////////////////////////////////////////////////////
+    //     .section = "PreExposure",
+    //     .is_visible = []() { return current_settings_mode >= 2; },
+    // },
+    // new renodx::utils::settings::Setting{
+    //     .key = "CustomColorGradePreExposureAutoMode",
+    //     .binding = &shader_injection.custom_preexposure_auto_mode,
+    //     .value_type = renodx::utils::settings::SettingValueType::INTEGER,
+    //     .default_value = 1.f,
+    //     .label = "AutoExposure Mode",
+    //     .section = "PreExposure",
+    //     .tooltip = "The game has autoexposure for highs, mids, and shadows.\n"
+    //                "Which value will be the target for the HDR image?",
+    //     .labels = {"Highlights", "Mids", "Shadows"},
+    //     .is_visible = []() { return current_settings_mode >= 2; },
+    // },
     new renodx::utils::settings::Setting{
         .key = "CustomColorGradePreExposureAutoMultiplier",
         .binding = &shader_injection.custom_preexposure_auto_multiplier,
@@ -328,12 +328,12 @@ renodx::utils::settings::Settings settings = {
         .format = "%.2f",
         .is_visible = []() { return current_settings_mode >= 2; },
     },
-    new renodx::utils::settings::Setting{
-        .value_type = renodx::utils::settings::SettingValueType::TEXT,
-        .label = "",  // Spacer /////////////////////////////////////////////////////
-        .section = "PreExposure",
-        .is_visible = []() { return current_settings_mode >= 2; },
-    },
+    // new renodx::utils::settings::Setting{
+    //     .value_type = renodx::utils::settings::SettingValueType::TEXT,
+    //     .label = "",  // Spacer /////////////////////////////////////////////////////
+    //     .section = "PreExposure",
+    //     .is_visible = []() { return current_settings_mode >= 2; },
+    // },
 
     new renodx::utils::settings::Setting{
         .key = "CustomColorGradePreExposureFinal",
@@ -367,9 +367,23 @@ renodx::utils::settings::Settings settings = {
         .default_value = 0.f,
         .label = "Auto Correction Amount",
         .section = "Upgrade Tone Map",
-        .tooltip = "Subsitute the SDR image's luminance in place of the HDR's.\n",
+        .tooltip = "Subsitute the SDR image's luminance in place of the HDR's.",
         .max = 100.f,
         .parse = [](float value) { return value * 0.01f; },
+        .is_visible = []() { return current_settings_mode >= 2; },
+    },
+    new renodx::utils::settings::Setting{
+        .key = "CustomUpgradeTonemapSaveBlacks",
+        .binding = &shader_injection.custom_upgradetonemap_saveblacks,
+        .value_type = renodx::utils::settings::SettingValueType::FLOAT,
+        .default_value = 0.0050f,
+        .label = "Save Blacks Threshold",
+        .section = "Upgrade Tone Map",
+        .tooltip = "Substitute crushed blacks for untonemapped color so that RenoDRT has chrominance to work with.",
+        .min = 0.0000f,
+        .max = 0.1f,
+        // .parse = [](float value) { return value * 0.01f; },
+        .format = "%.4f",
         .is_visible = []() { return current_settings_mode >= 2; },
     },
 
@@ -621,21 +635,6 @@ renodx::utils::settings::Settings settings = {
     },
 };
 
-// const std::unordered_map<std::string, reshade::api::format> UPGRADE_TARGETS = {
-//     {"R8G8B8A8_TYPELESS", reshade::api::format::r8g8b8a8_typeless},
-//     {"B8G8R8A8_TYPELESS", reshade::api::format::b8g8r8a8_typeless},
-//     {"R8G8B8A8_UNORM", reshade::api::format::r8g8b8a8_unorm},
-//     {"B8G8R8A8_UNORM", reshade::api::format::b8g8r8a8_unorm},
-//     {"R8G8B8A8_SNORM", reshade::api::format::r8g8b8a8_snorm},
-//     {"R8G8B8A8_UNORM_SRGB", reshade::api::format::r8g8b8a8_unorm_srgb},
-//     {"B8G8R8A8_UNORM_SRGB", reshade::api::format::b8g8r8a8_unorm_srgb},
-//     {"R10G10B10A2_TYPELESS", reshade::api::format::r10g10b10a2_typeless},
-//     {"R10G10B10A2_UNORM", reshade::api::format::r10g10b10a2_unorm},
-//     {"B10G10R10A2_UNORM", reshade::api::format::b10g10r10a2_unorm},
-//     {"R11G11B10_FLOAT", reshade::api::format::r11g11b10_float},
-//     {"R16G16B16A16_TYPELESS", reshade::api::format::r16g16b16a16_typeless},
-// };
-
 void OnPresetOff() {
   renodx::utils::settings::UpdateSetting("ToneMapType", 0.f);
   renodx::utils::settings::UpdateSetting("ToneMapPeakNits", 203.f);
@@ -650,11 +649,6 @@ void OnPresetOff() {
   renodx::utils::settings::UpdateSetting("ColorGradeLUTStrength", 100.f);
   renodx::utils::settings::UpdateSetting("ColorGradeLUTScaling", 0.f);
 }
-
-const auto UPGRADE_TYPE_NONE = 0.f;
-const auto UPGRADE_TYPE_OUTPUT_SIZE = 1.f;
-const auto UPGRADE_TYPE_OUTPUT_RATIO = 2.f;
-const auto UPGRADE_TYPE_ANY = 3.f;
 
 bool initialized = false;
 
