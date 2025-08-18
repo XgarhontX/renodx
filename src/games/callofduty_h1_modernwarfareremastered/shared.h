@@ -136,6 +136,8 @@ cbuffer shader_injection : register(b13) {
 #define RENODX_SWAP_CHAIN_ENCODING_COLOR_SPACE shader_injection.swap_chain_encoding_color_space
 #define RENODX_RENO_DRT_TONE_MAP_METHOD        renodx::tonemap::renodrt::config::tone_map_method::REINHARD
 
+#define CUSTOM_IS_CALIBRATION      shader_injection.custom_is_calibration
+
 #define CUSTOM_PREEXPOSURE_FINAL             shader_injection.custom_preexposure_final
 // #define CUSTOM_PREEXPOSURE_OFFSET_MODE       shader_injection.custom_preexposure_offset_mode
 #define CUSTOM_PREEXPOSURE_OFFSET_MULTIPLIER shader_injection.custom_preexposure_offset_multiplier
@@ -149,7 +151,6 @@ cbuffer shader_injection : register(b13) {
 #define CUSTOM_UPGRADETONEMAP_AUTO        shader_injection.custom_upgradetonemap_auto
 #define CUSTOM_UPGRADETONEMAP_SAVEBLACKS  shader_injection.custom_upgradetonemap_saveblacks
 
-#define CUSTOM_IS_CALIBRATION      shader_injection.custom_is_calibration
 #define CUSTOM_BLOOM_MULTIPLIER    shader_injection.custom_bloom_multiplier
 #define CUSTOM_ADSSIGHT_MULTIPLIER shader_injection.custom_adssights_multiplier
 #define CUSTOM_IS_UI               shader_injection.custom_is_ui

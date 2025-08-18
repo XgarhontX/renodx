@@ -65,18 +65,20 @@ void main(
   //color clamp
   r0.xyz = saturate(r0.xyz);
 
-  //r0.xyz = renodx::color::srgb::EncodeSafe(r0.xyz);
-  r1.xyz = log2(r0.xyz);
-  r1.xyz = float3(0.416666657,0.416666657,0.416666657) * r1.xyz; //2.4
-  r1.xyz = exp2(r1.xyz);
-  
-  r1.xyz = r1.xyz * float3(1.05499995,1.05499995,1.05499995) + float3(-0.0549999997,-0.0549999997,-0.0549999997);
-  r2.xyz = cmp(float3(0.00313080009,0.00313080009,0.00313080009) >= r0.xyz);
-  r0.xyz = float3(12.9200001,12.9200001,12.9200001) * r0.xyz;
-  r0.xyz = r2.xyz ? r0.xyz : r1.xyz;
-  
   //colorSDRNeutral
   colorSDRNeutral = r0.xyz;
+
+  ///to srgb
+  r0.xyz = renodx::color::srgb::EncodeSafe(r0.xyz);
+  // {  r1.xyz = log2(r0.xyz);
+  //   r1.xyz = float3(0.416666657,0.416666657,0.416666657) * r1.xyz; //2.4
+  //   r1.xyz = exp2(r1.xyz);
+
+  //   r1.xyz = r1.xyz * float3(1.05499995,1.05499995,1.05499995) + float3(-0.0549999997,-0.0549999997,-0.0549999997);
+  //   r2.xyz = cmp(float3(0.00313080009,0.00313080009,0.00313080009) >= r0.xyz);
+  //   r0.xyz = float3(12.9200001,12.9200001,12.9200001) * r0.xyz;
+  //   r0.xyz = r2.xyz ? r0.xyz : r1.xyz;
+  // }
 
   //LUT
   r0.xyz = r0.xyz * float3(0.96875,0.96875,0.96875) + float3(0.015625,0.015625,0.015625); //some shifting before lut idk

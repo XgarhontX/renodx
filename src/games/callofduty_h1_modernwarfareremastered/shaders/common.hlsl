@@ -137,10 +137,10 @@ static renodx::debug::graph::Config graph_config; //performance? mt safe?
 void Tonemap_Do(inout float4 r0, float3 colorUntonemapped, float3 colorTonemapped, float3 colorSDRNeutral, float2 uv, Texture2D<float4> texColor) {
   if (RENODX_TONE_MAP_TYPE > 0) {
     //graph start
-    graph_config = renodx::debug::graph::DrawStart(uv, colorUntonemapped, texColor, RENODX_PEAK_WHITE_NITS, RENODX_DIFFUSE_WHITE_NITS);
+    if (CUSTOM_IS_CALIBRATION) graph_config = renodx::debug::graph::DrawStart(uv, colorUntonemapped, texColor, RENODX_PEAK_WHITE_NITS, RENODX_DIFFUSE_WHITE_NITS);
 
     //decode
-    colorSDRNeutral = renodx::color::srgb::DecodeSafe(colorSDRNeutral);
+    // colorSDRNeutral = renodx::color::srgb::DecodeSafe(colorSDRNeutral);
     colorTonemapped = renodx::color::srgb::DecodeSafe(colorTonemapped);
 
     //ToneMapPass

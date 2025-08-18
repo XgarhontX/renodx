@@ -37,6 +37,7 @@ renodx::mods::shader::CustomShaders custom_shaders = {
     CustomShaderEntry(0xF545F4AE),  // tonemap 1b
     CustomShaderEntry(0xC1ABB7B7),  // tonemap 1c
 
+    CustomShaderEntry(0x2085E3DE),  // ui pause blur
     CustomShaderEntry(0x69F5418B),  // ui compass
     CustomShaderEntry(0x33E447A0),  // ui text compass
     CustomShaderEntry(0x96814D38),  // ui text main
@@ -615,7 +616,7 @@ renodx::utils::settings::Settings settings = {
     },
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::BUTTON,
-        .label = "More Mods",
+        .label = "More RenoDX Mods",
         .section = "Credits",
         .group = "button-line-1",
         .tint = 0x2B3137,
