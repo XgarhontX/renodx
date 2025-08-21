@@ -37,79 +37,6 @@ float4 remap(float4 origFrom, float4 origTo, float4 targetFrom, float4 targetTo,
   return lerp(targetFrom, targetTo, rel);
 }
 
-// //https://stackoverflow.com/questions/32915724/pack-two-floats-within-range-into-one-float
-// float FloatPack_In(float a, float b) {
-//   uint aScaled = a * 0xFFFF;
-//   uint bScaled = b * 0xFFFF;
-//   uint abPacked = (aScaled << 16) | (bScaled & 0xFFFF);
-//   return asfloat(abPacked);
-// }
-// void FloatPack_Out(float inputFloat, out float a, out float b) {
-//   uint uintInput = asuint(inputFloat);
-//   a = (uintInput >> 16) / 65535.0f;
-//   b = (uintInput & 0xFFFF) / 65535.0f;
-// }
-
-// uint R5G6B5_Get255Int(float color){
-//   return clamp(color * 255, 0, 255);
-// }
-
-// float R5G6B5_Get01Float(uint color) {
-//   return (color / 255.f);
-// }
-// // 0000 0000 0000 0000
-// // 0b 0000 0000 1111 1111
-
-// //red
-// // 0b 0000 0000 1111 1000 //mask 5
-// // 0b 1111 1000 0000 0000 //mask 5 << 8
-
-// //green
-// // 0b ---- -000 1111 1100 //mask 6
-// // 0b ---- -111 1110 0000 //mask 6 << 3
-
-// //blue
-// // 0b ---- ---- 1111 1000 //mask 5
-// // 0b ---- ---- ---1 1111 //mask 5 >> 3
-
-
-// //https://github.com/GPUOpen-LibrariesAndSDKs/nBodyD3D12/blob/master/MiniEngine/Core/Shaders/PixelPacking.hlsli
-// //https://barth-dev.de/about-rgb565-and-how-to-convert-into-it/
-// uint R5G6B5_Pack(float3 color)
-// {
-//   color = renodx::color::srgb::Encode(color);
-
-//   uint r,g,b;
-//   r = R5G6B5_Get255Int(color.r);
-//   g = R5G6B5_Get255Int(color.g);
-//   b = R5G6B5_Get255Int(color.b);
-
-//   // r = (r & 0b0000000011111000) << 8;
-//   // g = (g & 0b0000000011111100) << 3;
-//   // b = (b & 0b0000000011111000) >> 3;
-//   r = (r & 248) << 8;
-//   g = (g & 252) << 3;
-//   b = (b & 248) >> 3;
-  
-//   return r | g | b;
-//   // return asfloat(r | g | b);
-// }
-
-// float3 R5G6B5_Unpack(float4 r0)
-// {
-//   uint r,g,b;
-//   uint rgb = r0.w;
-
-//   // r = (rgb & 0b1111100000000000) >> 8;
-//   // g = (rgb & 0b0000011111100000) >> 3;
-//   // b = (rgb & 0b0000000000011111) << 3;
-//   r = (rgb & 63488) >> 8;
-//   g = (rgb & 2016) >> 3;
-//   b = (rgb & 31) << 3;
-
-//   return renodx::color::srgb::Decode(float3(R5G6B5_Get01Float(r), R5G6B5_Get01Float(g), R5G6B5_Get01Float(b)));
-// }
-
 float Tonemap_GetY(float3 color) {
   return renodx::color::y::from::BT709(color);
 }
@@ -121,7 +48,7 @@ void Tonemap_SaveBlacks( in float3 colorUntonemapped, inout float4 r0) {
 }
 
 
-void Tonemap_UpgradeTonemap0(inout float3 colorUntonemapped, in float4 r0) {
+void Tonemap_UpgradeTonemap0(inout float3 colorUntonemapped, inout float4 r0) {
   if (RENODX_TONE_MAP_TYPE == 0) return;
 
   //save blacks
@@ -130,7 +57,7 @@ void Tonemap_UpgradeTonemap0(inout float3 colorUntonemapped, in float4 r0) {
   //upgrade
   colorUntonemapped = renodx::tonemap::UpgradeToneMap(
     colorUntonemapped, r0.xyz, r0.xyz, 
-    CUSTOM_UPGRADETONEMAP_POSTPROCESS, CUSTOM_UPGRADETONEMAP_AUTO
+    CUSTOM_UPGRADETONEMAP_POSTPROCESS, 0
   );
 }
 
@@ -187,7 +114,9 @@ void Tonemap_PrepColorUntonemapped(inout float3 colorUntonemapped, inout float4 
   r0.w = 1; //reset
 }
 
-void Tonemap_RecoverSDR(inout float4 r0) {
+void Tonemap_RecoverYFromW(inout float4 r0) {
+  if (RENODX_TONE_MAP_TYPE == 0) return;
+
   r0.xyz = renodx::color::correct::Luminance(r0.xyz, Tonemap_GetY(r0.xyz), r0.w, 1); //correct
   r0.w = 1; //reset
 }
@@ -208,7 +137,7 @@ void Tonemap_RecoverSDR(inout float4 r0) {
 //   return x;
 // }
 
-static renodx::debug::graph::Config graph_config; //performance? mt safe?
+static renodx::debug::graph::Config graph_config; 
 void Tonemap_Do(inout float4 r0, float3 colorUntonemapped, float3 colorTonemapped, float3 colorSDRNeutral, float2 uv, Texture2D<float4> texColor) {
   if (RENODX_TONE_MAP_TYPE > 0) {
     //graph start

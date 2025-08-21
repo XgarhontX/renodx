@@ -56,7 +56,7 @@ void Tonemap_UpgradeTonemap0(inout float3 colorUntonemapped, in float4 r0) {
   //upgrade
   colorUntonemapped = renodx::tonemap::UpgradeToneMap(
     colorUntonemapped, r0.xyz, r0.xyz, 
-    CUSTOM_UPGRADETONEMAP_POSTPROCESS, CUSTOM_UPGRADETONEMAP_AUTO
+    CUSTOM_UPGRADETONEMAP_POSTPROCESS, 0
   );
 }
 
@@ -113,6 +113,8 @@ float Tonemap_CalculatePreExposureMultiplier(float4 thresholds, float4 autoexp/*
 // }
 
 void Tonemap_RecoverYFromW(inout float4 r0) {
+  if (RENODX_TONE_MAP_TYPE == 0) return;
+  
   r0.xyz = renodx::color::correct::Luminance(r0.xyz, Tonemap_GetY(r0.xyz), r0.w, 1); //correct
   r0.w = 1; //reset
 }
@@ -133,7 +135,7 @@ void Tonemap_RecoverYFromW(inout float4 r0) {
 //   return x;
 // }
 
-static renodx::debug::graph::Config graph_config; //performance? mt safe?
+static renodx::debug::graph::Config graph_config; 
 void Tonemap_Do(inout float4 r0, float3 colorUntonemapped, float3 colorTonemapped, float3 colorSDRNeutral, float2 uv, Texture2D<float4> texColor) {
   if (RENODX_TONE_MAP_TYPE > 0) {
     //graph start

@@ -36,9 +36,12 @@ renodx::mods::shader::CustomShaders custom_shaders = {
     CustomShaderEntry(0x69C8D55D),  // tonemap 1a
     CustomShaderEntry(0xF545F4AE),  // tonemap 1b
     CustomShaderEntry(0xC1ABB7B7),  // tonemap 1c
+    CustomShaderEntry(0x06858E94),  // tonemap 1d
+    CustomShaderEntry(0xFF474774),  // tonemap 1e
 
     CustomShaderEntry(0x2085E3DE),  // ui pause blur
-    CustomShaderEntry(0x69F5418B),  // ui compass
+    CustomShaderEntry(0x69F5418B),  // ui main
+    CustomShaderEntry(0xAB4BECFD),  // ui pause title bg
     CustomShaderEntry(0x33E447A0),  // ui text compass
     CustomShaderEntry(0x96814D38),  // ui text main
 
@@ -85,19 +88,21 @@ renodx::utils::settings::Settings settings = {
     },
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::BULLET,
-        .label = "Anti-Aliasing modes: Filmic sharpness depends on UI brightness, and T2x flickers.\n"
+        .label = "Anti-Aliasing modes Filmic and T2x are broken.\n"
+                 "Filmic can work if UI Brightness = Game Brightness\n"
+                 "Fixing it breaks other more important shaders.\n"
                  "Please use the other modes and Super Sampling.",
         .section = "Read Me",
     },
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::BULLET,
-        .label = "The HDR image is very neutral. You might want to play with Contrast and Shadow.",
+        .label = "Please reset the in game Brightness setting.\n"
+                 "In config.cfg, it is hash 0x45CB3517. Set it to 0.",
         .section = "Read Me",
     },
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::BULLET,
-        .label = "This was created using default brightness in game settings."
-                 "\nProbably best to reset it. (In config.cfg, it's hash 0x45CB3517 = 0.)",
+        .label = "Colorblind filter is not supported.",
         .section = "Read Me",
     },
     new renodx::utils::settings::Setting{
@@ -295,7 +300,7 @@ renodx::utils::settings::Settings settings = {
         .default_value = 1.f,
         .label = "Offset Multiplier",
         .section = "PreExposure",
-        .tooltip = "The amount to brighten.",
+        .tooltip = "The amount to brighten, set by current location.",
         .max = 1.f,
         .format = "%.2f",
         .is_visible = []() { return current_settings_mode >= 2; },
@@ -361,18 +366,18 @@ renodx::utils::settings::Settings settings = {
         .parse = [](float value) { return value * 0.01f; },
         .is_visible = []() { return current_settings_mode >= 2; },
     },
-    new renodx::utils::settings::Setting{
-        .key = "CustomUpgradeTonemapAuto",
-        .binding = &shader_injection.custom_upgradetonemap_auto,
-        .value_type = renodx::utils::settings::SettingValueType::FLOAT,
-        .default_value = 0.f,
-        .label = "Auto Correction Amount",
-        .section = "Upgrade Tone Map",
-        .tooltip = "Subsitute the SDR image's luminance in place of the HDR's.",
-        .max = 100.f,
-        .parse = [](float value) { return value * 0.01f; },
-        .is_visible = []() { return current_settings_mode >= 2; },
-    },
+    // new renodx::utils::settings::Setting{
+    //     .key = "CustomUpgradeTonemapAuto",
+    //     .binding = &shader_injection.custom_upgradetonemap_auto,
+    //     .value_type = renodx::utils::settings::SettingValueType::FLOAT,
+    //     .default_value = 0.f,
+    //     .label = "Auto Correction Amount",
+    //     .section = "Upgrade Tone Map",
+    //     .tooltip = "Subsitute the SDR image's luminance in place of the HDR's.",
+    //     .max = 100.f,
+    //     .parse = [](float value) { return value * 0.01f; },
+    //     .is_visible = []() { return current_settings_mode >= 2; },
+    // },
     new renodx::utils::settings::Setting{
         .key = "CustomUpgradeTonemapSaveBlacks",
         .binding = &shader_injection.custom_upgradetonemap_saveblacks,
@@ -510,7 +515,7 @@ renodx::utils::settings::Settings settings = {
         .default_value = 1.f,
         .label = "UI",
         .section = "Extra",
-        .tooltip = "Side feature. Might not comprehensive.",
+        .tooltip = "Not comprehensive, but should be enough to pause and take screenshots.",
     },
 
     // Advanced //////////////////////////////////////////////////////////////////////////////////////

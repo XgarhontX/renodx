@@ -37,6 +37,18 @@ void main(
   //color
   r0.xyzw = t4.Sample(s4_s, v1.xy).xyzw;
 
+  // if (RENODX_TONE_MAP_TYPE > 0)
+  // {
+  //   r0.xyz = renodx::color::srgb::Encode(r0.xyz);
+  //   r0.xyz = renodx::lut::Sample(t2, s0_s, r0.xyz, 32);
+  //   r0.xyz = renodx::color::srgb::Decode(r0.xyz);
+  //   r0.xyz = renodx::draw::ToneMapPass(r0.xyz);
+  //   r0.xyz = renodx::draw::RenderIntermediatePass(r0.xyz);
+  //   o0.xyz = r0.xyz;
+  //   o0.w = 1;
+  //   return;
+  // }
+
 #ifdef DEBUG_MODE
   if (RENODX_TONE_MAP_TYPE == 1) {
     o0.xyz = r0.xyz;
@@ -84,16 +96,22 @@ void main(
   r0.xyz = r0.xyz * float3(0.96875,0.96875,0.96875) + float3(0.015625,0.015625,0.015625); //some shifting before lut idk
   r0.xyz = t2.Sample(s0_s, r0.xyz).xyz;
 
-  //unknown, maybe bloody screen
+  //r0.w
   r0.w = dot(r0.xyz, float3(0.298999995,0.587000012,0.114));
-  r1.x = cb2[1].w * r0.w + cb2[0].w;
-  r0.w = saturate(r0.w);
-  
-  r1.yzw = r0.www + -r0.xyz;
-  r0.xyz = r1.xxx * r1.yzw + r0.xyz;
-  r1.xyz = cb2[2].xyz * r0.www + cb2[1].xyz;
-  r1.xyz = r1.xyz * r0.www + cb2[0].xyz;
-  r0.xyz = r0.xyz * r1.xyz + cb2[3].xyz;
+
+  //More color correct tied to Game Brightness
+  {
+    //saturation
+    r1.x = cb2[1].w * r0.w + cb2[0].w;
+    r0.w = saturate(r0.w);
+    r1.yzw = r0.www + -r0.xyz;
+    r0.xyz = r1.xxx * r1.yzw + r0.xyz;
+    
+    //tint + Game Brightness
+    r1.xyz = cb2[2].xyz * r0.www + cb2[1].xyz;
+    r1.xyz = r1.xyz * r0.www + cb2[0].xyz;
+    r0.xyz = r0.xyz * r1.xyz + cb2[3].xyz;
+  }
 
   //colorTonemapped
   colorTonemapped = r0.xyz;

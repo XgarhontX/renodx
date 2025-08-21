@@ -80,7 +80,7 @@ struct ShaderInjectData {
   float custom_mov_shoulderpow;
 
   float custom_upgradetonemap_postprocess;
-  float custom_upgradetonemap_auto;
+  // float custom_upgradetonemap_auto;
   float custom_upgradetonemap_saveblacks;
 
   float custom_is_calibration;
@@ -145,7 +145,7 @@ cbuffer shader_injection : register(b13) {
 #define CUSTOM_MOV_SHOULDERPOW shader_injection.custom_mov_shoulderpow
 
 #define CUSTOM_UPGRADETONEMAP_POSTPROCESS shader_injection.custom_upgradetonemap_postprocess
-#define CUSTOM_UPGRADETONEMAP_AUTO        shader_injection.custom_upgradetonemap_auto
+// #define CUSTOM_UPGRADETONEMAP_AUTO        shader_injection.custom_upgradetonemap_auto
 #define CUSTOM_UPGRADETONEMAP_SAVEBLACKS  shader_injection.custom_upgradetonemap_saveblacks
 
 #define CUSTOM_IS_CALIBRATION      shader_injection.custom_is_calibration

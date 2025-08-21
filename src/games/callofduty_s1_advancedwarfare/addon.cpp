@@ -85,13 +85,15 @@ renodx::utils::settings::Settings settings = {
     },
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::BULLET,
-        .label = "Anti-Aliasing modes: Filmic sharpness depends on UI brightness, and T2x flickers.\n"
+        .label = "Anti-Aliasing modes Filmic and T2x are broken.\n"
+                 "Filmic can work if UI Brightness = Game Brightness\n"
+                 "Fixing it breaks other more important shaders.\n"
                  "Please use the other modes and Super Sampling.",
         .section = "Read Me",
     },
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::BULLET,
-        .label = "The HDR image is very neutral. You might want to increase Contrast.",
+        .label = "If ADS breaks HDR (it does in MP gamemodes), then disable DoF.",
         .section = "Read Me",
     },
     new renodx::utils::settings::Setting{
@@ -289,7 +291,7 @@ renodx::utils::settings::Settings settings = {
         .default_value = 1.f,
         .label = "Offset Multiplier",
         .section = "PreExposure",
-        .tooltip = "The amount to brighten.",
+        .tooltip = "The amount to brighten, set by current location.",
         .max = 1.f,
         .format = "%.2f",
         .is_visible = []() { return current_settings_mode >= 2; },
@@ -355,18 +357,18 @@ renodx::utils::settings::Settings settings = {
         .parse = [](float value) { return value * 0.01f; },
         .is_visible = []() { return current_settings_mode >= 2; },
     },
-    new renodx::utils::settings::Setting{
-        .key = "CustomUpgradeTonemapAuto",
-        .binding = &shader_injection.custom_upgradetonemap_auto,
-        .value_type = renodx::utils::settings::SettingValueType::FLOAT,
-        .default_value = 0.f,
-        .label = "Auto Correction Amount",
-        .section = "Upgrade Tone Map",
-        .tooltip = "Subsitute the SDR image's luminance in place of the HDR's.\n",
-        .max = 100.f,
-        .parse = [](float value) { return value * 0.01f; },
-        .is_visible = []() { return current_settings_mode >= 2; },
-    },
+    // new renodx::utils::settings::Setting{
+    //     .key = "CustomUpgradeTonemapAuto",
+    //     .binding = &shader_injection.custom_upgradetonemap_auto,
+    //     .value_type = renodx::utils::settings::SettingValueType::FLOAT,
+    //     .default_value = 0.f,
+    //     .label = "Auto Correction Amount",
+    //     .section = "Upgrade Tone Map",
+    //     .tooltip = "Subsitute the SDR image's luminance in place of the HDR's.\n",
+    //     .max = 100.f,
+    //     .parse = [](float value) { return value * 0.01f; },
+    //     .is_visible = []() { return current_settings_mode >= 2; },
+    // },
     new renodx::utils::settings::Setting{
         .key = "CustomUpgradeTonemapSaveBlacks",
         .binding = &shader_injection.custom_upgradetonemap_saveblacks,
@@ -504,7 +506,7 @@ renodx::utils::settings::Settings settings = {
         .default_value = 1.f,
         .label = "UI",
         .section = "Extra",
-        .tooltip = "Side feature. Might not comprehensive.",
+        .tooltip = "Not comprehensive, but should be enough to pause and take screenshots.",
     },
 
     // Advanced //////////////////////////////////////////////////////////////////////////////////////
@@ -733,7 +735,7 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
             .old_format = reshade::api::format::r8g8b8a8_typeless,
             .new_format = reshade::api::format::r16g16b16a16_typeless,
             .ignore_size = true,
-            .use_resource_view_cloning = true, //else crash on pause
+            .use_resource_view_cloning = true,  // else crash on pause
             .aspect_ratio = renodx::mods::swapchain::SwapChainUpgradeTarget::BACK_BUFFER,
             .usage_include = reshade::api::resource_usage::render_target,
         });

@@ -33,17 +33,11 @@ void main(
   //color
   r0.xyzw = t4.Sample(s4_s, v1.xy).xyzw;
 
-  {
-    //colorUntonemapped
-    colorUntonemapped = r0.xyz;
+  //colorUntonemapped
+  colorUntonemapped = r0.xyz;
 
-    //recover r0 from Tonemap0
-    if (RENODX_TONE_MAP_TYPE > 0) Tonemap_RecoverSDR(r0);
-  }
-
-  // {
-  //   Tonemap_PrepColorUntonemapped(colorUntonemapped, r0);
-  // }
+  //recover r0 from Tonemap0
+  Tonemap_RecoverYFromW(r0);
 
   //color clamp
   r0.xyz = saturate(r0.xyz);
@@ -62,22 +56,26 @@ void main(
   //   r0.xyz = float3(12.9200001,12.9200001,12.9200001) * r0.xyz;
   //   r0.xyz = r2.xyz ? r0.xyz : r1.xyz;
   // }
-  
-  //NO LUT
-  
-  //unknown, maybe bloody screen
-  r0.w = dot(r0.xyz, float3(0.298999995,0.587000012,0.114));
-  r1.x = cb2[1].w * r0.w + cb2[0].w;
-  r0.w = saturate(r0.w);
 
-  r1.yzw = r0.www + -r0.xyz;
-  r0.xyz = r1.xxx * r1.yzw + r0.xyz;
-  r1.xyz = cb2[2].xyz * r0.www + cb2[1].xyz;
-  r1.xyz = r1.xyz * r0.www + cb2[0].xyz;
-  r0.xyz = r0.xyz * r1.xyz + cb2[3].xyz;
+  //NO LUT
 
   //colorTonemapped
   colorTonemapped = r0.xyz;
+  
+  //r0.w
+  r0.w = dot(r0.xyz, float3(0.298999995,0.587000012,0.114));
+
+  //More color correct tied to Game Brightness
+  {
+    r1.x = cb2[1].w * r0.w + cb2[0].w;
+    r0.w = saturate(r0.w);
+    r1.yzw = r0.www + -r0.xyz;
+    r0.xyz = r1.xxx * r1.yzw + r0.xyz;
+    
+    r1.xyz = cb2[2].xyz * r0.www + cb2[1].xyz;
+    r1.xyz = r1.xyz * r0.www + cb2[0].xyz;
+    r0.xyz = r0.xyz * r1.xyz + cb2[3].xyz;
+  }
 
   //ToneMapPass
   Tonemap_Do(r0, colorUntonemapped, colorTonemapped, colorSDRNeutral, v1, t4);
