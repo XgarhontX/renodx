@@ -246,7 +246,8 @@ renodx::utils::settings::Settings settings = {
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::BULLET,
         .label = "Anti-Aliasing is required, as the color gets harmfully encoded otherwise.\n"
-                 "(Screen will turn red as warning.)",
+                 "You can force disable FXAA below.\n"
+                 "(Screen will turn red as warning if otherwise.)",
         .section = "Read Me (IMPORTANT)",
     },
     new renodx::utils::settings::Setting{
@@ -588,6 +589,16 @@ renodx::utils::settings::Settings settings = {
     //     .section = "Extra",
     //     .tooltip = "Not comprehensive, but should be enough to pause and take screenshots.",
     // },
+    new renodx::utils::settings::Setting{
+        .key = "custom_disablefxaa",
+        .binding = &shader_injection.custom_disablefxaa,
+        .value_type = renodx::utils::settings::SettingValueType::BOOLEAN,
+        .default_value = 0.f,
+        .label = "Disable FXAA",
+        .section = "Extra",
+        .tooltip = "Force disable FXAA (set in-game settings first).\n"
+                   "For those who don't want any anti-aliasing.",
+    },
 
     // PreExposure //////////////////////////////////////////////////////////////////////////////////////
     // new renodx::utils::settings::Setting{
