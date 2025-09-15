@@ -132,7 +132,7 @@ float3 Tonemap_Do(float3 colorUntonemapped, float3 colorTonemapped, /* float3 co
     }
     //colorUntonemapped black floor raise (counteracts contrast to match vanilla)
     {
-      colorUntonemapped += (0.0019f / 1.5f);
+      colorUntonemapped += CUSTOM_BLACKFLOORRAISE; //(0.0019f / 1.5f)
     }
 
     //LUMA GRADE

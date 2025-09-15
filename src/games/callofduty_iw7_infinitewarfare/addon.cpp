@@ -673,6 +673,19 @@ renodx::utils::settings::Settings settings = {
         .format = "%.3f",
         .is_visible = []() { return current_settings_mode >= 1; },
     },
+    new renodx::utils::settings::Setting{
+        .key = "custom_blackfloorraise",
+        .binding = &shader_injection.custom_blackfloorraise,
+        .default_value = 0.001266f,
+        .label = "Black Floor Raise",
+        .section = "PreExposure",
+        .tooltip = "Black floor raise on untonemapped color.\n"
+                   "Mimics Vanilla faded photography colored shadows.\n"
+                   "Decreasing can crush blacks.",
+        .max = 0.001266f,
+        .format = "%.7f",
+        .is_visible = []() { return current_settings_mode >= 1; },
+    },
 
     // Frostbite //////////////////////////////////////////////////////////////////////////////////////
     new renodx::utils::settings::Setting{

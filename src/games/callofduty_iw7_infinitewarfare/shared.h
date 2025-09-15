@@ -83,6 +83,7 @@ struct ShaderInjectData {
   // float custom_adssights_multiplier;
   // float custom_is_ui;
   float custom_disablefxaa;
+  float custom_blackfloorraise;
 
   // float custom_tonemap_debug;
   float custom_tonemap_unverified;
@@ -148,7 +149,8 @@ cbuffer shader_injection : register(RENODX_COLORBUFFER_INDEXB) {
 #define CUSTOM_BLOOM_MULTIPLIER shader_injection.custom_bloom_multiplier
 // #define CUSTOM_ADSSIGHT_MULTIPLIER shader_injection.custom_adssights_multiplier
 // #define CUSTOM_IS_UI shader_injection.custom_is_ui
-#define CUSTOM_DISABLEFXAA shader_injection.custom_disablefxaa
+#define CUSTOM_DISABLEFXAA     shader_injection.custom_disablefxaa
+#define CUSTOM_BLACKFLOORRAISE shader_injection.custom_blackfloorraise
 
 // #define CUSTOM_TONEMAP_DEBUG      shader_injection.custom_tonemap_debug
 #define CUSTOM_TONEMAP_UNVERIFIED shader_injection.custom_tonemap_unverified
