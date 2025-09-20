@@ -1,0 +1,48 @@
+#include "./common.hlsl"
+
+float4 ExposureSettings : register(c0);
+float MaxDeltaDown : register(c2);
+sampler2D PreviousExposureTexture : register(s1);
+sampler2D SceneDownsampledTexture : register(s0);
+
+float4 main() : COLOR {
+  float4 o;
+
+  float4 r0;
+  float4 r1;
+  float r2;
+
+  r0 = tex2D(SceneDownsampledTexture, 0.5);
+  r0.w = (-r0.x >= 0) ? 1 : 0;
+  r1.x = (r0.x >= 0) ? 1 : 0;
+  r0.w = r0.w * r1.x;
+  r0.xyz = (-r0.w >= 0) ? r0.xyz : 0.25;
+  r0.x = dot(r0.xyz, float3(0.3, 0.59, 0.11));
+  r1.x = max(r0.x, 1E-07);
+  r0.x = min(r1.x, 5000);
+  r0.x = 1 / r0.x;
+  r0.x = r0.x * 0.25;
+  r0.x = 1 / sqrt(r0.x);
+  r0.x = 1 / r0.x;
+  r1.x = max(r0.x, ExposureSettings.z);
+  r0.x = min(ExposureSettings.w, r1.x);
+  r1 = tex2D(PreviousExposureTexture, 0.5);
+  r0.y = r1.x * 64;
+  r0.y = 1 / sqrt(r0.y);
+  r0.y = 1 / r0.y;
+  r1.x = max(r0.y, ExposureSettings.z);
+  r0.y = min(ExposureSettings.w, r1.x);
+  r0.x = r0.x + -r0.y;
+  r0.z = abs(r0.x) * r0.x;
+  r0.x = abs(r0.x) * abs(r0.x);
+  r0.w = r0.x * (-MaxDeltaDown.x * 1000);
+  r0.x = r0.x * ExposureSettings.y;
+  r1.x = max(r0.z, r0.w);
+  r2.x = min(r0.x, r1.x);
+  r0.x = r0.y + r2.x;
+  r0.x = r0.x * r0.x;
+  r0.x = r0.x * ExposureSettings.x;
+  o = r0.x * 0.015625;
+
+  return o;
+}

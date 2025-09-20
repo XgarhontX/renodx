@@ -1,0 +1,376 @@
+#include "../shared.h"
+float BloomScale : register(c3);
+float2 MinMaxBlurClamp : register(c2);
+float4 PackedParameters : register(c0);
+sampler2D SceneColorTexture : register(s0);
+
+struct PS_IN {
+  float4 texcoord : TEXCOORD;
+  float4 texcoord1 : TEXCOORD1;
+  float4 texcoord2 : TEXCOORD2;
+  float4 texcoord3 : TEXCOORD3;
+  float4 texcoord4 : TEXCOORD4;
+  float4 texcoord5 : TEXCOORD5;
+  float4 texcoord6 : TEXCOORD6;
+  float4 texcoord7 : TEXCOORD7;
+};
+
+float4 main(PS_IN i) : COLOR {
+  float4 o;
+
+  float4 r0;
+  float4 r1;
+  float4 r2;
+  float4 r3;
+  float3 r4;
+  const float4 c1 = float4(60000, 1, 0, 0.0625);
+  const float4 c4 = float4(9.99999975e-005, 0.25, 0, 0);
+
+  r0 = tex2D(SceneColorTexture, i.texcoord);
+  r1 = -r0.wxyz + c1.zyyy;
+  r1.x = r1.x;
+  r1.yzw = (r1.xyz >= 0) ? 0 : 1;
+  r2.xyz = r0.xyz * r1.x;
+  r1.x = dot(r1.yzw, r1.yzw);
+  r1.xyz = (-r1.x >= 0) ? 0 : r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord.wzzw);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord1);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord1.wzzw);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord2);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord2.wzzw);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord3);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord3.wzzw);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord4);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord4.wzzw);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord5);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord5.wzzw);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord6);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord6.wzzw);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord7);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r2 = tex2D(SceneColorTexture, i.texcoord7.wzzw);
+  r3 = -r2.wxyz + c1.zyyy;
+  r3.x = r3.x;
+  r3.yzw = (r3.xyz >= 0) ? 0 : 1;
+  r4.xyz = r2.xyz * r3.x;
+  r0 = r0 + r2;
+  r1.w = dot(r3.yzw, r3.yzw);
+  r2.xyz = (-r1.w >= 0) ? 0 : r4.xyz;
+  r1.xyz = r1.xyz + r2.xyz;
+  r1.xyz = r1.xyz * (BloomScale.x * CUSTOM_BLOOM);
+  r1.xyz = r1.xyz * c1.w;
+  r1.w = c1.w;
+  r0.w = r0.w * r1.w + -PackedParameters.x;
+  r0.xyz = r0.xyz * c1.w;
+  r1.w = abs(r0.w) * PackedParameters.y;
+  r0.w = (r0.w >= 0) ? MinMaxBlurClamp.y : MinMaxBlurClamp.x;
+  r2.x = max(r1.w, c4.x);
+  r1.w = pow(r2.x, PackedParameters.z);
+  r2.w = min(r1.w, r0.w);
+  r2.xyz = r2.w * r0.xyz + r1.xyz;
+  o = r2 * c4.y;
+
+  return o;
+}
+
+//
+// Generated by Microsoft (R) HLSL Shader Compiler 9.19.949.1104
+//
+// Parameters:
+//
+//   float BloomScale;
+//   float2 MinMaxBlurClamp;
+//   float4 PackedParameters;
+//   sampler2D SceneColorTexture;
+//
+//
+// Registers:
+//
+//   Name              Reg   Size
+//   ----------------- ----- ----
+//   PackedParameters  c0       1
+//   MinMaxBlurClamp   c2       1
+//   BloomScale        c3       1
+//   SceneColorTexture s0       1
+//
+
+//     ps_3_0
+//       0x00000134:     def c1, 60000, 1, 0, c1.w
+//       0x0000014C:     def c4, 9.99999975e-005, 0.25, 0, 0
+//       0x00000164:     dcl_texcoord v0
+//       0x00000170:     dcl_texcoord1 v1
+//       0x0000017C:     dcl_texcoord2 v2
+//       0x00000188:     dcl_texcoord3 v3
+//       0x00000194:     dcl_texcoord4 v4
+//       0x000001A0:     dcl_texcoord5 v5
+//       0x000001AC:     dcl_texcoord6 v6
+//       0x000001B8:     dcl_texcoord7 v7
+//       0x000001C4:     dcl_2d s0
+//    0  0x000001D0:     texld_pp r0, v0, s0
+//    0  0x000001E0:     add r1, -r0.wxyz, c1.zyyy
+//    1  0x000001F0:     mov_sat_pp r1.x, r1.x
+//    2  0x000001FC:     cmp r1.yzw, r1, c1.z, c1.y
+//    3  0x00000210:     mul_pp r2.xyz, r0, r1.x
+//    4  0x00000220:     dp3 r1.x, r1.yzww, r1.yzww
+//    5  0x00000230:     cmp_pp r1.xyz, -r1.x, c1.z, r2
+//    6  0x00000244:     texld_pp r2, v0.wzzw, s0
+//    6  0x00000254:     add r3, -r2.wxyz, c1.zyyy
+//    7  0x00000264:     mov_sat_pp r3.x, r3.x
+//    8  0x00000270:     cmp r3.yzw, r3, c1.z, c1.y
+//    9  0x00000284:     mul r4.xyz, r2, r3.x
+//   10  0x00000294:     add_pp r0, r0, r2
+//   11  0x000002A4:     dp3 r1.w, r3.yzww, r3.yzww
+//   12  0x000002B4:     cmp r2.xyz, -r1.w, c1.z, r4
+//   13  0x000002C8:     add_pp r1.xyz, r1, r2
+//   14  0x000002D8:     texld_pp r2, v1, s0
+//   14  0x000002E8:     add r3, -r2.wxyz, c1.zyyy
+//   15  0x000002F8:     mov_sat_pp r3.x, r3.x
+//   16  0x00000304:     cmp r3.yzw, r3, c1.z, c1.y
+//   17  0x00000318:     mul r4.xyz, r2, r3.x
+//   18  0x00000328:     add_pp r0, r0, r2
+//   19  0x00000338:     dp3 r1.w, r3.yzww, r3.yzww
+//   20  0x00000348:     cmp r2.xyz, -r1.w, c1.z, r4
+//   21  0x0000035C:     add_pp r1.xyz, r1, r2
+//   22  0x0000036C:     texld_pp r2, v1.wzzw, s0
+//   22  0x0000037C:     add r3, -r2.wxyz, c1.zyyy
+//   23  0x0000038C:     mov_sat_pp r3.x, r3.x
+//   24  0x00000398:     cmp r3.yzw, r3, c1.z, c1.y
+//   25  0x000003AC:     mul r4.xyz, r2, r3.x
+//   26  0x000003BC:     add_pp r0, r0, r2
+//   27  0x000003CC:     dp3 r1.w, r3.yzww, r3.yzww
+//   28  0x000003DC:     cmp r2.xyz, -r1.w, c1.z, r4
+//   29  0x000003F0:     add_pp r1.xyz, r1, r2
+//   30  0x00000400:     texld_pp r2, v2, s0
+//   30  0x00000410:     add r3, -r2.wxyz, c1.zyyy
+//   31  0x00000420:     mov_sat_pp r3.x, r3.x
+//   32  0x0000042C:     cmp r3.yzw, r3, c1.z, c1.y
+//   33  0x00000440:     mul r4.xyz, r2, r3.x
+//   34  0x00000450:     add_pp r0, r0, r2
+//   35  0x00000460:     dp3 r1.w, r3.yzww, r3.yzww
+//   36  0x00000470:     cmp r2.xyz, -r1.w, c1.z, r4
+//   37  0x00000484:     add_pp r1.xyz, r1, r2
+//   38  0x00000494:     texld_pp r2, v2.wzzw, s0
+//   38  0x000004A4:     add r3, -r2.wxyz, c1.zyyy
+//   39  0x000004B4:     mov_sat_pp r3.x, r3.x
+//   40  0x000004C0:     cmp r3.yzw, r3, c1.z, c1.y
+//   41  0x000004D4:     mul r4.xyz, r2, r3.x
+//   42  0x000004E4:     add_pp r0, r0, r2
+//   43  0x000004F4:     dp3 r1.w, r3.yzww, r3.yzww
+//   44  0x00000504:     cmp r2.xyz, -r1.w, c1.z, r4
+//   45  0x00000518:     add_pp r1.xyz, r1, r2
+//   46  0x00000528:     texld_pp r2, v3, s0
+//   46  0x00000538:     add r3, -r2.wxyz, c1.zyyy
+//   47  0x00000548:     mov_sat_pp r3.x, r3.x
+//   48  0x00000554:     cmp r3.yzw, r3, c1.z, c1.y
+//   49  0x00000568:     mul r4.xyz, r2, r3.x
+//   50  0x00000578:     add_pp r0, r0, r2
+//   51  0x00000588:     dp3 r1.w, r3.yzww, r3.yzww
+//   52  0x00000598:     cmp r2.xyz, -r1.w, c1.z, r4
+//   53  0x000005AC:     add_pp r1.xyz, r1, r2
+//   54  0x000005BC:     texld_pp r2, v3.wzzw, s0
+//   54  0x000005CC:     add r3, -r2.wxyz, c1.zyyy
+//   55  0x000005DC:     mov_sat_pp r3.x, r3.x
+//   56  0x000005E8:     cmp r3.yzw, r3, c1.z, c1.y
+//   57  0x000005FC:     mul r4.xyz, r2, r3.x
+//   58  0x0000060C:     add_pp r0, r0, r2
+//   59  0x0000061C:     dp3 r1.w, r3.yzww, r3.yzww
+//   60  0x0000062C:     cmp r2.xyz, -r1.w, c1.z, r4
+//   61  0x00000640:     add_pp r1.xyz, r1, r2
+//   62  0x00000650:     texld_pp r2, v4, s0
+//   62  0x00000660:     add r3, -r2.wxyz, c1.zyyy
+//   63  0x00000670:     mov_sat_pp r3.x, r3.x
+//   64  0x0000067C:     cmp r3.yzw, r3, c1.z, c1.y
+//   65  0x00000690:     mul r4.xyz, r2, r3.x
+//   66  0x000006A0:     add_pp r0, r0, r2
+//   67  0x000006B0:     dp3 r1.w, r3.yzww, r3.yzww
+//   68  0x000006C0:     cmp r2.xyz, -r1.w, c1.z, r4
+//   69  0x000006D4:     add_pp r1.xyz, r1, r2
+//   70  0x000006E4:     texld_pp r2, v4.wzzw, s0
+//   70  0x000006F4:     add r3, -r2.wxyz, c1.zyyy
+//   71  0x00000704:     mov_sat_pp r3.x, r3.x
+//   72  0x00000710:     cmp r3.yzw, r3, c1.z, c1.y
+//   73  0x00000724:     mul r4.xyz, r2, r3.x
+//   74  0x00000734:     add_pp r0, r0, r2
+//   75  0x00000744:     dp3 r1.w, r3.yzww, r3.yzww
+//   76  0x00000754:     cmp r2.xyz, -r1.w, c1.z, r4
+//   77  0x00000768:     add_pp r1.xyz, r1, r2
+//   78  0x00000778:     texld_pp r2, v5, s0
+//   78  0x00000788:     add r3, -r2.wxyz, c1.zyyy
+//   79  0x00000798:     mov_sat_pp r3.x, r3.x
+//   80  0x000007A4:     cmp r3.yzw, r3, c1.z, c1.y
+//   81  0x000007B8:     mul r4.xyz, r2, r3.x
+//   82  0x000007C8:     add_pp r0, r0, r2
+//   83  0x000007D8:     dp3 r1.w, r3.yzww, r3.yzww
+//   84  0x000007E8:     cmp r2.xyz, -r1.w, c1.z, r4
+//   85  0x000007FC:     add_pp r1.xyz, r1, r2
+//   86  0x0000080C:     texld_pp r2, v5.wzzw, s0
+//   86  0x0000081C:     add r3, -r2.wxyz, c1.zyyy
+//   87  0x0000082C:     mov_sat_pp r3.x, r3.x
+//   88  0x00000838:     cmp r3.yzw, r3, c1.z, c1.y
+//   89  0x0000084C:     mul r4.xyz, r2, r3.x
+//   90  0x0000085C:     add_pp r0, r0, r2
+//   91  0x0000086C:     dp3 r1.w, r3.yzww, r3.yzww
+//   92  0x0000087C:     cmp r2.xyz, -r1.w, c1.z, r4
+//   93  0x00000890:     add_pp r1.xyz, r1, r2
+//   94  0x000008A0:     texld_pp r2, v6, s0
+//   94  0x000008B0:     add r3, -r2.wxyz, c1.zyyy
+//   95  0x000008C0:     mov_sat_pp r3.x, r3.x
+//   96  0x000008CC:     cmp r3.yzw, r3, c1.z, c1.y
+//   97  0x000008E0:     mul r4.xyz, r2, r3.x
+//   98  0x000008F0:     add_pp r0, r0, r2
+//   99  0x00000900:     dp3 r1.w, r3.yzww, r3.yzww
+//  100  0x00000910:     cmp r2.xyz, -r1.w, c1.z, r4
+//  101  0x00000924:     add_pp r1.xyz, r1, r2
+//  102  0x00000934:     texld_pp r2, v6.wzzw, s0
+//  102  0x00000944:     add r3, -r2.wxyz, c1.zyyy
+//  103  0x00000954:     mov_sat_pp r3.x, r3.x
+//  104  0x00000960:     cmp r3.yzw, r3, c1.z, c1.y
+//  105  0x00000974:     mul r4.xyz, r2, r3.x
+//  106  0x00000984:     add_pp r0, r0, r2
+//  107  0x00000994:     dp3 r1.w, r3.yzww, r3.yzww
+//  108  0x000009A4:     cmp r2.xyz, -r1.w, c1.z, r4
+//  109  0x000009B8:     add_pp r1.xyz, r1, r2
+//  110  0x000009C8:     texld_pp r2, v7, s0
+//  110  0x000009D8:     add r3, -r2.wxyz, c1.zyyy
+//  111  0x000009E8:     mov_sat_pp r3.x, r3.x
+//  112  0x000009F4:     cmp r3.yzw, r3, c1.z, c1.y
+//  113  0x00000A08:     mul r4.xyz, r2, r3.x
+//  114  0x00000A18:     add_pp r0, r0, r2
+//  115  0x00000A28:     dp3 r1.w, r3.yzww, r3.yzww
+//  116  0x00000A38:     cmp r2.xyz, -r1.w, c1.z, r4
+//  117  0x00000A4C:     add_pp r1.xyz, r1, r2
+//  118  0x00000A5C:     texld_pp r2, v7.wzzw, s0
+//  118  0x00000A6C:     add r3, -r2.wxyz, c1.zyyy
+//  119  0x00000A7C:     mov_sat_pp r3.x, r3.x
+//  120  0x00000A88:     cmp r3.yzw, r3, c1.z, c1.y
+//  121  0x00000A9C:     mul r4.xyz, r2, r3.x
+//  122  0x00000AAC:     add_pp r0, r0, r2
+//  123  0x00000ABC:     dp3 r1.w, r3.yzww, r3.yzww
+//  124  0x00000ACC:     cmp r2.xyz, -r1.w, c1.z, r4
+//  125  0x00000AE0:     add_pp r1.xyz, r1, r2
+//  126  0x00000AF0:     mul_pp r1.xyz, r1, c3.x
+//  127  0x00000B00:     mul_pp r1.xyz, r1, c1.w
+//  128  0x00000B10:     mov r1.w, c1.w
+//  129  0x00000B1C:     mad_pp r0.w, r0.w, r1.w, -c0.x
+//  130  0x00000B30:     mul_pp r0.xyz, r0, c1.w
+//  131  0x00000B40:     mul_sat r1.w, r0_abs.w, c0.y
+//  132  0x00000B50:     cmp_pp r0.w, r0.w, c2.y, c2.x
+//  133  0x00000B64:     max r2.x, r1.w, c4.x
+//  134  0x00000B74:     pow_pp r1.w, r2.x, c0.z
+//  137  0x00000B84:     min_pp r2.w, r1.w, r0.w
+//  138  0x00000B94:     mad_pp r2.xyz, r2.w, r0, r1
+//  139  0x00000BA8:     mul oC0, r2, c4.y
+
+// approximately 156 instruction slots used (16 texture, 140 arithmetic)
+

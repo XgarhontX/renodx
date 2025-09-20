@@ -1,0 +1,44 @@
+float4 MotionPacked : register(c0);
+float4 RenderTargetClampParameter : register(c2);
+sampler2D SceneColorTexture : register(s0);
+
+float4 main(float4 texcoord: TEXCOORD) : COLOR {
+  float4 o;
+
+  float4 r0;
+  float3 r1;
+  float4 r2;
+  float2 r3;
+
+  return tex2D(SceneColorTexture, texcoord.zw);
+
+  r0.xyz = texcoord.yyx * float3(-1, -2, -2) + float3(0.5, 1, 1);
+  r0.x = r0.x + r0.x;
+  r0.y = dot(r0.y, r0.y) + 0;
+  r0.y = 1 / sqrt(r0.y);
+  r0.z = 1 / r0.y;
+  r0.x = r0.x * r0.y;
+  r1.x = pow(r0.z, 0.1);
+  r0.y = r1.x + -0.95;
+  r1.x = max(r0.y, 0);
+  r0.y = min(r1.x, 0.07);
+  r0.y = r0.y * MotionPacked.x;
+  r0.x = r0.x * r0.y;
+  r0.yzw = 0;
+  r1.xy = texcoord.zw;
+  r1.z = 1;
+  for (int i0 = 0; i0 < 8; i0++) {
+    r2.x = max(r1.x, RenderTargetClampParameter.x);
+    r3.x = min(RenderTargetClampParameter.z, r2.x);
+    r2.x = max(r1.y, RenderTargetClampParameter.y);
+    r3.y = min(RenderTargetClampParameter.w, r2.x);
+    r2 = tex2D(SceneColorTexture, r3);
+    r1.xy = r0.x * 0.125 + r1.xy;
+    r0.yzw = r2.xyz * r1.z + r0.xyz;
+    r1.z = r1.z + -0.125;
+  }
+  o.xyz = r0.yzw * 0.222222;
+  o.w = 1;
+
+  return o;
+}
