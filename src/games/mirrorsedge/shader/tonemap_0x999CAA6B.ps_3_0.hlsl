@@ -27,54 +27,70 @@ float4 main(float2 texcoord: TEXCOORD) : COLOR {
   colorUntonemapped = r0.xyz;
 
   r1 = SceneShadowsAndDesaturation;
-  r0.xyz = r0.xyz * SceneInverseHighLights.xyz + -r1.xyz;
-  r1.xyz = max(abs(r0.xyz), 9.99999975e-005);
+  r0.xyz = r0.xyz * SceneInverseHighLights.xyz + -r1.xyz;  // removed saturate
 
-  r0.x = log2(r1.x);
-  r0.y = log2(r1.y);
-  r0.z = log2(r1.z);
-  // r0.xyz = log2(r1.xyz);
+  // r1.xyz = max(abs(r0.xyz), 9.99999975e-005);
+  r1.xyz = max(abs(r0.xyz), 1e-5f);
+  {
+    //   r0.x = log2(r1.x);
+    //   r0.y = log2(r1.y);
+    //   r0.z = log2(r1.z);
+    //   r0.xyz = r0.xyz * SceneMidTones.xyz;
+    //   r1.x = exp2(r0.x);
+    //   r1.y = exp2(r0.y);
+    //   r1.z = exp2(r0.z);
 
-  r0.xyz = r0.xyz * SceneMidTones.xyz;
+    r1.xyz = pow(r0.xyz, SceneMidTones.xyz);
 
-  r1.x = exp2(r0.x);
-  r1.y = exp2(r0.y);
-  r1.z = exp2(r0.z);
-  // r1.xyz = log2(r0.xyz);
+    // r1.x = renodx::math::SafePow(r0.x, SceneMidTones.x);
+    // r1.y = renodx::math::SafePow(r0.y, SceneMidTones.y);
+    // r1.z = renodx::math::SafePow(r0.z, SceneMidTones.z);
+    // r1.z = renodx::math::SafePow(r0.xyz, SceneMidTones.xyz);
+  }
 
   r0.x = dot(r1.xyz, SceneScaledLuminanceWeights.xyz);
   r0.yzw = r1.xyz * r1.w + GammaOverlayColor.xyz;
   r0.xyz = r0.x + r0.yzw;
-  r0.xyz = r0.xyz * GammaColorScaleAndInverse.xyz;
+  r0.xyz = r0.xyz * GammaColorScaleAndInverse.xyz;  // removed saturate
+  {
+    // THIS RAISES BLACK FLOOR, bruh
+    //  r1.x = max(r0.x, 0.0001);
+    //  r1.y = max(r0.y, 0.0001);
+    //  r1.z = max(r0.z, 0.0001);
 
-  r1.xyz = max(r0.xyz, 0.0001);
-  // r1.x = max(r0.x, 0.0001);
-  // r1.y = max(r0.y, 0.0001);
-  // r1.z = max(r0.z, 0.0001);
+    r1.xyz = max(r0.xyz, 1e-5f);
+  }
 
-  // r0.x = log2(r1.x);
-  // r0.y = log2(r1.y);
-  // r0.z = log2(r1.z);
-  r0.xyz = log2(r1.xyz);
+  {
+    r0.x = log2(r1.x);
+    r0.y = log2(r1.y);
+    r0.z = log2(r1.z);
+    r0.xyz = r0.xyz * GammaColorScaleAndInverse.w;
+    r0.x = exp2(r0.x);
 
-  r0.xyz = r0.xyz * GammaColorScaleAndInverse.w;
-  r0.x = exp2(r0.x);
+    // r0.yz = log2(r1.yz);
+    // r0.yz = r0.yz * GammaColorScaleAndInverse.w;
+    // r0.x = renodx::math::SafePow(r1.x, GammaColorScaleAndInverse.w);
+  }
+
+  // Built in to this is encoding.
   r1.x = r0.x * 0.9375;
   r1.y = 0;
-  r1 = tex2D(ColorCurvesKTexture, r1);
-  o.x = r0.x * r1.x + r1.y;
+  r1 = tex2D(ColorCurvesKTexture, r1.xy);
+  o.x = r0.x * r1.x + r1.y;  // removed saturate
 
-  r0.x = exp2(r0.y);
+  r0.x = exp2(r0.y);  // cant really do SafePow
   r0.y = exp2(r0.z);
+
   r0.z = r0.x * 0.9375;
   r0.w = 0;
-  r1 = tex2D(ColorCurvesKTexture, r0.zwzw);
-  o.y = r0.x * r1.z + r1.w;
+  r1 = tex2D(ColorCurvesKTexture, r0.zw);
+  o.y = r0.x * r1.z + r1.w;  // removed saturate
 
   r0.x = r0.y * 0.9375;
   r0.z = 0;
-  r1 = tex2D(ColorCurvesMTexture, r0.xzzw);
-  o.z = r0.y * r1.x + r1.y;
+  r1 = tex2D(ColorCurvesMTexture, r0.xz);
+  o.z = r0.y * r1.x + r1.y;  // removed saturate
 
   o.w = 1;
 

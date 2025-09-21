@@ -20,7 +20,7 @@ float4 main(PS_IN i) : COLOR {
   float4 r0;
   float3 r1;
 
-  if (CUSTOM_SUNLENS <= 0) discard;
+  // if (CUSTOM_SUNLENS <= 0) discard;
 
   r0.w = 0.5;
   r0.x = i.texcoord.x * r0.w + UniformScalar_0.x;
