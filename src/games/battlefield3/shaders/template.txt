@@ -1,0 +1,27 @@
+#include "./common.hlsl"
+
+float3 colorU /*, colorN*/;
+float3 colorU;
+
+
+* CUSTOM_BLOOM
+
+
+colorU = r0.xyz;
+
+r0.xyz = pow(r0.xyz, invGamma.xyz);
+
+
+(r0.w * CUSTOM_VIGNETTE)
+
+
+(r0.w * CUSTOM_FILMGRAIN)
+
+
+r0.xyz = r0.xyz * r1.xyz + r2.xyz;  
+colorU = colorU * r1.xyz + r2.xyz;  
+
+r0.xyz = r1.xyz * r0.xyz;
+colorU = r1.xyz * colorU;
+
+o0.xyz = Tonemap_Do(colorU, /*colorN, */o0.xyz, v2.xy, mainTexture);

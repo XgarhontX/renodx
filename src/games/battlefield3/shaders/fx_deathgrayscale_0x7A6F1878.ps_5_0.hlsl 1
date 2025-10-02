@@ -1,0 +1,60 @@
+// ---- Created with 3Dmigoto v1.3.16 on Tue Sep 30 09:40:25 2025
+
+cbuffer _Globals : register(b0)
+{
+  float2 invPixelSize : packoffset(c0);
+  float4 depthFactors : packoffset(c1);
+  float2 fadeParams : packoffset(c2);
+  float4 color : packoffset(c3);
+  float4 colorMatrix0 : packoffset(c4);
+  float4 colorMatrix1 : packoffset(c5);
+  float4 colorMatrix2 : packoffset(c6);
+  float exponent : packoffset(c7);
+  float4 combineTextureWeights[2] : packoffset(c8);
+  float4 colorScale : packoffset(c10);
+  float2 invTexelSize : packoffset(c11);
+  float4 downsampleQuarterZOffset : packoffset(c12);
+  int sampleCount : packoffset(c13);
+  float filterWidth : packoffset(c13.y);
+  float mipLevelSource : packoffset(c13.z);
+  float4 radialBlurScales : packoffset(c14);
+  float2 radialBlurCenter : packoffset(c15);
+  float4 poissonRadialBlurConstants : packoffset(c16);
+  float blendFactor : packoffset(c17);
+  float4 seperableKernelWeights[8] : packoffset(c18);
+}
+
+SamplerState mainTexture_s : register(s0);
+Texture2D<float4> mainTexture : register(t0);
+
+
+// 3Dmigoto declarations
+#define cmp -
+
+
+void main(
+  float4 v0 : SV_Position0,
+  float4 v1 : TEXCOORD0,
+  float2 v2 : TEXCOORD1,
+  out float4 o0 : SV_Target0)
+{
+  float4 r0,r1,r2;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.xyzw = seperableKernelWeights[0].xxzz * float4(1,0,1,0) + v2.xyxy;
+  r1.xyzw = mainTexture.Sample(mainTexture_s, r0.zw).xyzw;
+  r0.xyzw = mainTexture.Sample(mainTexture_s, r0.xy).xyzw;
+  r1.xyzw = seperableKernelWeights[0].wwww * r1.xyzw;
+  r0.xyzw = seperableKernelWeights[0].yyyy * r0.xyzw + r1.xyzw;
+  r1.xyzw = seperableKernelWeights[1].xxzz * float4(1,0,1,0) + v2.xyxy;
+  r2.xyzw = mainTexture.Sample(mainTexture_s, r1.xy).xyzw;
+  r1.xyzw = mainTexture.Sample(mainTexture_s, r1.zw).xyzw;
+  r0.xyzw = seperableKernelWeights[1].yyyy * r2.xyzw + r0.xyzw;
+  r0.xyzw = seperableKernelWeights[1].wwww * r1.xyzw + r0.xyzw;
+  r1.xy = invPixelSize.xy * float2(4,0) + v2.xy;
+  r1.xyzw = mainTexture.Sample(mainTexture_s, r1.xy).xyzw;
+  r0.xyzw = seperableKernelWeights[2].xxxx * r1.xyzw + r0.xyzw;
+  o0.xyzw = max(float4(0,0,0,0), r0.xyzw);
+  return;
+}
