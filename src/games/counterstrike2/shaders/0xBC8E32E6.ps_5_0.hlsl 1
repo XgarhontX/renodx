@@ -1,0 +1,146 @@
+// ---- Created with 3Dmigoto v1.3.16 on Thu Oct 02 18:14:05 2025
+Texture2D<float4> t13 : register(t13);
+
+Texture2D<float4> t12 : register(t12);
+
+SamplerState s1_s : register(s1);
+
+SamplerState s0_s : register(s0);
+
+cbuffer cb4 : register(b4)
+{
+  float4 cb4[3];
+}
+
+cbuffer cb3 : register(b3)
+{
+  float4 cb3[3];
+}
+
+cbuffer cb1 : register(b1)
+{
+  float4 cb1[24];
+}
+
+cbuffer cb0 : register(b0)
+{
+  float4 cb0[11];
+}
+
+
+
+
+// 3Dmigoto declarations
+#define cmp -
+
+
+void main(
+  float2 v0 : TEXCOORD0,
+  float4 v1 : SV_Position0,
+  out float4 o0 : SV_Target0)
+{
+  float4 r0,r1,r2,r3;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.xy = cb1[23].zw * v1.xy;
+  r0.zw = cb0[0].zw * r0.xy;
+  r1.xyzw = t12.SampleLevel(s0_s, r0.zw, 0).xyzw;
+  r0.z = max(r1.y, r1.z);
+  r0.z = max(r1.x, r0.z);
+  r0.z = 1 + -r0.z;
+  r0.z = rcp(r0.z);
+  r1.xyz = r1.xyz * r0.zzz;
+  o0.w = r1.w;
+  r0.z = cb3[0].x * cb1[18].x;
+  r2.xyz = r1.xyz * r0.zzz;
+  r0.w = dot(r2.xyz, float3(0.212500006,0.715399981,0.0720999986));
+  r2.xy = min(cb0[3].zw, r0.xy);
+  r0.xy = r0.xy * float2(2,2) + float2(-1,-1);
+  r2.xy = cb0[3].xy * r2.xy;
+  r2.xyz = t13.SampleLevel(s1_s, r2.xy, 0).xyz;
+  r1.w = dot(r2.xyz, float3(0.212500006,0.715399981,0.0720999986));
+  r0.w = -r1.w + r0.w;
+  r2.x = dot(r0.xy, r0.xy);
+  r0.xy = -cb4[0].xy + r0.xy;
+  r2.x = sqrt(r2.x);
+  r2.x = -cb0[10].y + r2.x;
+  r2.y = cb0[10].z + -cb0[10].y;
+  r2.y = 1 / r2.y;
+  r2.x = saturate(r2.x * r2.y);
+  r2.y = r2.x * -2 + 3;
+  r2.x = r2.x * r2.x;
+  r2.x = r2.y * r2.x;
+  r2.y = cb0[10].x + -cb0[9].w;
+  r2.y = r2.x * r2.y + cb0[9].w;
+  r2.x = cb0[10].w * r2.x;
+  r0.w = r2.y * r0.w;
+  r2.y = cmp(r2.y >= 0);
+  r2.y = r2.y ? 0 : -1;
+  r0.w = max(r2.y, r0.w);
+  r1.xyz = r1.xyz * r0.zzz + r0.www;
+  r2.yzw = r1.www + -r1.xyz;
+  r1.xyz = r2.xxx * r2.yzw + r1.xyz;
+  r1.xyz = float3(2.79999995,2.79999995,2.79999995) * r1.xyz;
+  r1.xyz = min(cb3[1].www, r1.xyz);
+  r2.xyz = cb3[0].yyy * r1.xyz;
+  r2.xyz = cb3[0].www * cb3[0].zzz + r2.xyz;
+  r0.zw = cb3[1].xx * cb3[1].yz;
+  r2.xyz = r1.xyz * r2.xyz + r0.zzz;
+  r3.xyz = cb3[0].yyy * r1.xyz + cb3[0].zzz;
+  r1.xyz = r1.xyz * r3.xyz + r0.www;
+  r1.xyz = r2.xyz / r1.xyz;
+  r0.z = cb3[1].y / cb3[1].z;
+  r1.xyz = r1.xyz + -r0.zzz;
+  r1.xyz = cb3[2].xxx * r1.xyz;
+  r2.xyz = log2(r1.xyz);
+  r2.xyz = float3(0.416666657,0.416666657,0.416666657) * r2.xyz;
+  r2.xyz = exp2(r2.xyz);
+  r2.xyz = r2.xyz * float3(1.05499995,1.05499995,1.05499995) + float3(-0.0549999997,-0.0549999997,-0.0549999997);
+  r3.xyz = float3(12.9200001,12.9200001,12.9200001) * r1.xyz;
+  r1.xyz = cmp(float3(0.00313080009,0.00313080009,0.00313080009) >= r1.xyz);
+  r1.xyz = r1.xyz ? r3.xyz : r2.xyz;
+  r2.xyz = cb4[1].xyz * r1.xyz;
+  r1.xyz = -cb4[1].xyz * r1.xyz + r1.xyz;
+  r0.z = cb4[2].x + cb4[1].w;
+  r3.xy = r0.zz * abs(r0.xy);
+  r0.xy = cb4[2].xx * abs(r0.xy);
+  r0.xy = log2(r0.xy);
+  r0.xy = cb4[2].yy * r0.xy;
+  r0.xy = exp2(r0.xy);
+  r0.x = r0.x + r0.y;
+  r0.x = log2(r0.x);
+  r0.x = cb4[2].z * r0.x;
+  r0.x = exp2(r0.x);
+  r0.y = r0.z * r0.z;
+  r0.zw = log2(r3.xy);
+  r0.zw = cb4[2].yy * r0.zw;
+  r0.zw = exp2(r0.zw);
+  r0.z = r0.z + r0.w;
+  r0.z = log2(r0.z);
+  r0.z = cb4[2].z * r0.z;
+  r0.z = exp2(r0.z);
+  r0.w = cb4[2].x * cb4[2].x;
+  r1.w = r0.w * r0.x;
+  r0.x = -r0.w * r0.x + 1;
+  r0.y = r0.y * r0.z + -r1.w;
+  r0.y = 1 / r0.y;
+  r0.x = saturate(r0.x * r0.y);
+  r0.y = r0.x * -2 + 3;
+  r0.x = r0.x * r0.x;
+  r0.x = -r0.y * r0.x + 1;
+  r0.yzw = r0.xxx * r1.xyz + r2.xyz;
+  r1.x = -cb4[0].z + 1;
+  r1.x = r0.x * r1.x + cb4[0].z;
+  r0.x = -cb4[0].w * r0.x + cb4[0].w;
+  r0.xyz = r1.xxx * r0.yzw + r0.xxx;
+  r1.xyz = cb0[6].xyz * r0.xyz + -cb0[6].xyz;
+  r1.xyz = cb0[7].xxx * r1.xyz + cb0[6].xyz;
+  r1.xyz = r1.xyz + -r0.xyz;
+  r0.xyz = cb0[6].www * r1.xyz + r0.xyz;
+  r0.xyz = log2(r0.xyz);
+  r0.w = 0.454545438 * cb0[7].y;
+  r0.xyz = r0.www * r0.xyz;
+  o0.xyz = exp2(r0.xyz);
+  return;
+}

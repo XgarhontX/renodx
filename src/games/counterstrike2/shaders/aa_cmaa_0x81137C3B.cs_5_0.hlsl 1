@@ -1,0 +1,77 @@
+// ---- Created with 3Dmigoto v1.3.16 on Thu Oct 02 18:13:43 2025
+
+// RWTexture2D<unorm4> g_inoutColorWriteonly : register(u0);
+// RWStructuredBuffer<uint> g_workingDeferredBlendLocationList : register(u1);
+// RWStructuredBuffer<uint2> g_workingDeferredBlendItemList : register(u2);
+// RWTexture2D<uint> g_workingDeferredBlendItemListHeads : register(u3);
+// RWBuffer<uint> g_workingControlBuffer : register(u4);
+
+
+// 3Dmigoto declarations
+#define cmp -
+
+[numthreads(8, 8, 1)]
+void main()
+{
+  return;
+// // Needs manual fix for instruction:
+// // unknown dcl_: dcl_uav_typed_texture2d (unorm,unorm,unorm,unorm) u0
+// // Needs manual fix for instruction:
+// // unknown dcl_: dcl_uav_typed_texture2d (uint,uint,uint,uint) u3
+// // Needs manual fix for instruction:
+// // unknown dcl_: dcl_uav_typed_buffer (uint,uint,uint,uint) u4
+//   float4 r0,r1,r2,r3,r4,r5;
+//   uint4 bitmask, uiDest;
+//   float4 fDest;
+
+// // Needs manual fix for instruction:
+// // unknown dcl_: dcl_thread_group 4, 32, 1
+// // No code for instruction (needs manual fix):
+// ld_uav_typed_indexable(buffer)(uint,uint,uint,uint) r0.x, l(3, 3, 3, 3), u4.xyzw
+//   r0.x = cmp((uint)vThreadID.y >= (uint)r0.x);
+//   if (r0.x != 0) {
+//     return;
+//   }
+//   r0.x = g_workingDeferredBlendLocationList[vThreadID.y].x;
+//   r1.x = (uint)r0.x >> 16;
+//   r1.yzw = r0.xxx ? float3(0,0,0) : 0;
+// // No code for instruction (needs manual fix):
+// ld_uav_typed_indexable(texture2d)(uint,uint,uint,uint) r0.x, r1.xwww, u3.xyzw
+//   r0.y = r0.x;
+//   r2.xyzw = float4(0,0,0,0);
+//   r0.w = 0;
+//   while (true) {
+//     r3.x = cmp((int)r0.y != -1);
+//     r3.y = cmp((uint)r0.w < 32);
+//     r3.x = r3.y ? r3.x : 0;
+//     if (r3.x == 0) break;
+//     r3.x = (uint)r0.y >> 30;
+//     if (1 == 0) r3.y = 0; else if (1+26 < 32) {     r3.y = (uint)r0.y << (32-(1 + 26)); r3.y = (uint)r3.y >> (32-1);    } else r3.y = (uint)r0.y >> 26;
+//     r3.z = (int)r0.y & 0x03ffffff;
+//     r0.yz = g_workingDeferredBlendItemList[r3.z].xy;
+//     r3.x = cmp((int)r3.x == (int)vThreadIDInGroup.x);
+//     bitmask.z = ((~(-1 << 11)) << 3) & 0xffffffff;  r3.z = (((uint)r0.z << 3) & bitmask.z) | ((uint)0 & ~bitmask.z);
+//     r4.x = f16tof32(r3.z);
+//     r3.zw = (uint2)r0.zz >> int2(8,18);
+//     r3.zw = (int2)r3.zw & int2(0x3ff8,0x3ff0);
+//     r4.yz = f16tof32(r3.zw);
+//     r5.w = r3.y ? 1.79999995 : 0.800000012;
+//     r5.xyz = r5.www * r4.xyz;
+//     r4.xyzw = r2.xyzw + r5.xyzw;
+//     r2.xyzw = r3.xxxx ? r4.xyzw : r2.xyzw;
+//     r0.w = (int)r0.w + 1;
+//   }
+//   r0.x = cmp(r2.w == 0.000000);
+//   if (r0.x != 0) {
+//     return;
+//   }
+//   r0.x = (int)vThreadIDInGroup.x & 1;
+//   r3.x = cmp((uint)vThreadIDInGroup.x < 2);
+//   r0.yzw = r3.xxx ? float3(0,0,0) : float3(1.40129846e-045,1.40129846e-045,1.40129846e-045);
+//   r0.xyzw = mad((int4)r1.xyzw, int4(2,2,2,2), (int4)r0.xyzw);
+//   r1.xyz = r2.xyz / r2.www;
+//   r1.w = 1;
+// // No code for instruction (needs manual fix):
+// store_uav_typed u0.xyzw, r0.xyzw, r1.xyzw
+//   return;
+}
