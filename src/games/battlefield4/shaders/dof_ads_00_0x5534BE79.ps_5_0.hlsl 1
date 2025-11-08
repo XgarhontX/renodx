@@ -1,0 +1,48 @@
+// ---- Created with 3Dmigoto v1.3.16 on Thu Nov 06 12:10:48 2025
+
+cbuffer _Globals : register(b0)
+{
+  float2 invPixelSize : packoffset(c0);
+  float4 depthFactors : packoffset(c1);
+  float2 fadeParams : packoffset(c2);
+  float4 color : packoffset(c3);
+  float4 colorMatrix0 : packoffset(c4);
+  float4 colorMatrix1 : packoffset(c5);
+  float4 colorMatrix2 : packoffset(c6);
+  float exponent : packoffset(c7);
+  float4 ironsightsDofParams : packoffset(c8);
+  uint4 mainTextureDimensions : packoffset(c9);
+  float4 combineTextureWeights[2] : packoffset(c10);
+}
+
+SamplerState mainTextureSampler_s : register(s0);
+SamplerState zBufferSampler_s : register(s1);
+Texture2D<float4> mainTexture : register(t0);
+Texture2D<float4> zBuffer : register(t1);
+
+
+// 3Dmigoto declarations
+#define cmp -
+
+
+void main(
+  float4 v0 : SV_Position0,
+  float4 v1 : TEXCOORD0,
+  float2 v2 : TEXCOORD1,
+  out float4 o0 : SV_Target0)
+{
+  float4 r0;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.x = zBuffer.Sample(zBufferSampler_s, v2.xy).x;
+  r0.x = -ironsightsDofParams.y + r0.x;
+  r0.y = ironsightsDofParams.x + -ironsightsDofParams.y;
+  r0.x = r0.x / r0.y;
+  o0.w = saturate(1 + -r0.x);
+  r0.xyz = mainTexture.Sample(mainTextureSampler_s, v2.xy).xyz; r0.xyz = max(1e-6, r0.xyz);
+  r0.xyz = color.xxx * r0.xyz;
+  o0.xyz = sqrt(r0.xyz);
+  o0 = max(0, o0); //because naive tex upgrade
+  return;
+}

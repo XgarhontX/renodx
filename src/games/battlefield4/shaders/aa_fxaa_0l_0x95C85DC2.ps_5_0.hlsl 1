@@ -1,0 +1,89 @@
+// ---- Created with 3Dmigoto v1.3.16 on Thu Nov 06 12:11:17 2025
+
+cbuffer _Globals : register(b0)
+{
+  float2 rcpFrame : packoffset(c0);
+  float4 rcpFrameOpt : packoffset(c1);
+  float4 rcpFrameOpt2 : packoffset(c2);
+  float4 fxaaXenonConstDir : packoffset(c3);
+  float fxaaQualitySubpix : packoffset(c4) = {0.75};
+  float fxaaQualityEdgeThreshold : packoffset(c4.y) = {0.165999994};
+  float fxaaQualityEdgeThresholdMin : packoffset(c4.z) = {0.0833000019};
+  float fxaaConsoleEdgeSharpness : packoffset(c4.w) = {8};
+  float fxaaConsoleEdgeThreshold : packoffset(c5) = {0.25};
+  float fxaaConsoleEdgeThresholdMin : packoffset(c5.y) = {0.0500000007};
+}
+
+SamplerState mainSampler_s : register(s0);
+Texture2D<float4> mainTexture : register(t0);
+
+
+// 3Dmigoto declarations
+#define cmp -
+
+
+void main(
+  float4 v0 : SV_Position0,
+  float4 v1 : TEXCOORD0,
+  float4 v2 : TEXCOORD1,
+  out float4 o0 : SV_Target0)
+{
+  float4 r0,r1,r2,r3,r4;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  discard;
+
+  r0.x = mainTexture.SampleLevel(mainSampler_s, v2.xy, 0).w;
+  r0.y = mainTexture.SampleLevel(mainSampler_s, v2.xw, 0).w;
+  r0.z = mainTexture.SampleLevel(mainSampler_s, v2.zy, 0).w;
+  r0.w = mainTexture.SampleLevel(mainSampler_s, v2.zw, 0).w;
+  r1.xyzw = mainTexture.SampleLevel(mainSampler_s, v1.xy, 0).xyzw;
+  r0.z = 0.00260416674 + r0.z;
+  r2.xz = max(r0.xz, r0.yw);
+  r2.yw = min(r0.xz, r0.yw);
+  r2.x = max(r2.z, r2.x);
+  r2.y = min(r2.w, r2.y);
+  r2.z = fxaaConsoleEdgeThreshold * r2.x;
+  r2.w = min(r2.y, r1.w);
+  r2.z = max(fxaaConsoleEdgeThresholdMin, r2.z);
+  r3.x = max(r2.x, r1.w);
+  r2.w = r3.x + -r2.w;
+  r2.z = cmp(r2.w < r2.z);
+  if (r2.z != 0) {
+    o0.xyzw = r1.xyzw;
+  }
+  if (r2.z == 0) {
+    r0.xy = r0.wy + -r0.xz;
+    r1.x = r0.y + r0.x;
+    r1.y = r0.y + -r0.x;
+    r0.x = dot(r1.xy, r1.xy);
+    r0.x = rsqrt(r0.x);
+    r0.xy = r1.xy * r0.xx;
+    r0.zw = -r0.xy * rcpFrameOpt.zw + v1.xy;
+    r1.xyzw = mainTexture.SampleLevel(mainSampler_s, r0.zw, 0).xyzw;
+    r0.zw = r0.xy * rcpFrameOpt.zw + v1.xy;
+    r3.xyzw = mainTexture.SampleLevel(mainSampler_s, r0.zw, 0).xyzw;
+    r0.z = min(abs(r0.x), abs(r0.y));
+    r0.z = fxaaConsoleEdgeSharpness * r0.z;
+    r0.xy = r0.xy / r0.zz;
+    r0.xy = max(float2(-2,-2), r0.xy);
+    r0.xy = min(float2(2,2), r0.xy);
+    r0.zw = -r0.xy * rcpFrameOpt2.zw + v1.xy;
+    r4.xyzw = mainTexture.SampleLevel(mainSampler_s, r0.zw, 0).xyzw;
+    r0.xy = r0.xy * rcpFrameOpt2.zw + v1.xy;
+    r0.xyzw = mainTexture.SampleLevel(mainSampler_s, r0.xy, 0).xyzw;
+    r1.xyzw = r3.xyzw + r1.xyzw;
+    r0.xyzw = r4.xyzw + r0.xyzw;
+    r3.xyzw = float4(0.25,0.25,0.25,0.25) * r1.xyzw;
+    r0.xyzw = r0.xyzw * float4(0.25,0.25,0.25,0.25) + r3.xyzw;
+    r1.w = cmp(r0.w < r2.y);
+    r2.x = cmp(r2.x < r0.w);
+    r1.w = (int)r1.w | (int)r2.x;
+    if (r1.w != 0) {
+      r0.xyz = float3(0.5,0.5,0.5) * r1.xyz;
+    }
+    o0.xyzw = r0.xyzw;
+  }
+  return;
+}

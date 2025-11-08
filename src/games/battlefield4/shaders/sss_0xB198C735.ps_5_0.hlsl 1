@@ -1,0 +1,119 @@
+// ---- Created with 3Dmigoto v1.3.16 on Thu Nov 06 11:37:57 2025
+
+cbuffer CommonConstants : register(b0)
+{
+  float4 g_SssScreenSize : packoffset(c0);
+  float2 g_SssBlurDirection : packoffset(c1);
+  float g_SssProjCx : packoffset(c1.z);
+  float g_SssProjCy : packoffset(c1.w);
+  int g_SssSampleCount : packoffset(c2);
+  float g_SssMaxWidth : packoffset(c2.y);
+  int g_SssMaterialBufferOffset : packoffset(c2.z);
+  float g_SssPad0 : packoffset(c2.w);
+}
+
+SamplerState g_LinearSampler_s : register(s0);
+Texture2D<float4> g_DiffIrradianceInput : register(t0);
+Texture2D<float> g_LinearDepthTexture : register(t1);
+Texture2DMS<float4,4> g_GBuffer2 : register(t2);
+Buffer<float4> g_MaterialBuffer : register(t3);
+Texture2D<float4> g_MsaaClassifyTexture : register(t5);
+
+
+// 3Dmigoto declarations
+#define cmp -
+
+// FAILED TO DECOMP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+void main(
+  float4 v0 : SV_Position0,
+  float2 v1 : TEXCOORD0,
+  out float4 o0 : SV_Target0)
+{
+  float4 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.xyz = (int3)v0.xyz;
+  r1.x = g_LinearDepthTexture.Load(r0.xyz).x;
+  r1.yz = trunc(v0.xy);
+  r2.xyzw = g_SssScreenSize.zwzw * r1.yzyz;
+  r1.w = dot(r2.xzyw, g_SssBlurDirection.xxyy);
+  r1.w = -1 + r1.w;
+  r1.w = r1.w * r1.x;
+  r2.x = dot(g_SssProjCx, g_SssBlurDirection.xy);
+  r1.w = r1.w / r2.x;
+  r2.xy = ddx_coarse(r1.wx);
+  r3.xy = ddy_coarse(r1.wx);
+  r2.zw = g_SssBlurDirection.yy * r3.xy;
+  r2.xy = r2.xy * g_SssBlurDirection.xx + r2.zw;
+  r1.w = g_MsaaClassifyTexture.Load(r0.xyz).x;
+  r1.w = cmp(0 < r1.w);
+  r2.zw = r1.ww ? float2(5.60519386e-045,4) : float2(1.40129846e-045,1);
+  bitmask.w = ((~(-1 << 31)) << 1) & 0xffffffff;  r1.w = (((uint)g_SssSampleCount << 1) & bitmask.w) | ((uint)1 & ~bitmask.w);
+  r3.xyzw = g_DiffIrradianceInput.Load(r0.xyz).xyzw;
+  r0.z = dot(r2.xy, r2.xy);
+  r0.z = sqrt(r0.z);
+  r2.x = g_SssSampleCount;
+  r2.y = -g_SssSampleCount;
+  r0.w = 0;
+  r4.xyzw = float4(0,0,0,0);
+  r5.x = 0;
+  while (true) {
+    r5.y = cmp((uint)r5.x >= (uint)r2.z);
+    if (r5.y != 0) break;
+    r5.yz = g_GBuffer2.Load(r0.xy, r5.x).yw;
+    r5.zw = float2(255,255) * r5.yz;
+    r5.zw = round(r5.zw);
+    r5.zw = (uint2)r5.zw;
+    r5.w = cmp((int)r5.w == 2);
+    if (r5.w == 0) {
+      r6.xyz = r4.xyz + r3.xyz;
+      r6.w = (int)r5.x + 1;
+      r4.xyz = r6.xyz;
+      r5.x = r6.w;
+      continue;
+    }
+    r5.z = min(5, (uint)r5.z);
+    r5.z = r5.w ? r5.z : 6;
+    r5.w = mad((int)r5.z, (int)r1.w, g_SssMaterialBufferOffset);
+    r5.z = cmp((int)r5.z == 5);
+    r5.y = -0.0196078438 + r5.y;
+    r5.y = g_SssMaxWidth * r5.y;
+    r5.y = 0.00249999994 * r5.y;
+    r6.x = g_MaterialBuffer.Load(r5.w).w;
+    r5.y = r5.z ? r5.y : r6.x;
+    r5.z = r5.y / r0.z;
+    r5.z = r5.z / r2.x;
+    r6.xyz = float3(0,0,0);
+    r7.xyz = float3(0,0,0);
+    r6.w = r2.y;
+    while (true) {
+      r7.w = cmp(g_SssSampleCount < (int)r6.w);
+      if (r7.w != 0) break;
+      r7.w = (int)r6.w;
+      r8.xy = g_SssBlurDirection.xy * r7.ww;
+      r8.xy = r8.xy * r5.zz + r1.yz;
+      r8.xy = g_SssScreenSize.zw * r8.xy;
+      r7.w = g_LinearDepthTexture.SampleLevel(g_LinearSampler_s, r8.xy, 0).x;
+      r7.w = r7.w + -r1.x;
+      r7.w = cmp(r5.y >= abs(r7.w));
+      r7.w = r7.w ? 1.000000 : 0;
+      r8.xyz = g_DiffIrradianceInput.SampleLevel(g_LinearSampler_s, r8.xy, 0).xyz;
+      r8.xyz = r8.xyz + -r3.xyz;
+      r8.xyz = r7.www * r8.xyz + r3.xyz;
+      r7.w = (int)r5.w + (int)r6.w;
+      r7.w = (int)r7.w + g_SssSampleCount;
+      r9.xyz = g_MaterialBuffer.Load(r7.w).xyz;
+      r7.xyz = r8.xyz * r9.xyz + r7.xyz;
+      r6.xyz = r9.xyz + r6.xyz;
+      r6.w = (int)r6.w + 1;
+    }
+    r5.yzw = r7.xyz / r6.xyz;
+    r4.xyz = r5.yzw + r4.xyz;
+    r4.w = r3.w;
+    r5.x = (int)r5.x + 1;
+  }
+  o0.w = r4.w;
+  o0.xyz = r4.xyz / r2.www;
+  return;
+}

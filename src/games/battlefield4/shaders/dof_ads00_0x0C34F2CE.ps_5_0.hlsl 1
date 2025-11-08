@@ -1,0 +1,74 @@
+// ---- Created with 3Dmigoto v1.3.16 on Thu Nov 06 12:10:14 2025
+
+cbuffer _Globals : register(b0)
+{
+  float2 invPixelSize : packoffset(c0);
+  float4 depthFactors : packoffset(c1);
+  float2 fadeParams : packoffset(c2);
+  float4 color : packoffset(c3);
+  float4 colorMatrix0 : packoffset(c4);
+  float4 colorMatrix1 : packoffset(c5);
+  float4 colorMatrix2 : packoffset(c6);
+  float exponent : packoffset(c7);
+  float4 ironsightsDofParams : packoffset(c8);
+  uint4 mainTextureDimensions : packoffset(c9);
+  float4 combineTextureWeights[2] : packoffset(c10);
+  float4 colorScale : packoffset(c12);
+  float2 invTexelSize : packoffset(c13);
+  float4 downsampleQuarterZOffset : packoffset(c14);
+  int sampleCount : packoffset(c15);
+  float filterWidth : packoffset(c15.y);
+  float mipLevelSource : packoffset(c15.z);
+  float convolveSpecularPower : packoffset(c15.w);
+  float convolveBlurRadius : packoffset(c16);
+  int convolveSampleCount : packoffset(c16.y);
+  float3 dofDepthScaleFactors : packoffset(c17);
+  float4 radialBlurScales : packoffset(c18);
+  float2 radialBlurCenter : packoffset(c19);
+  float4 poissonRadialBlurConstants : packoffset(c20);
+  float blendFactor : packoffset(c21);
+  float4 seperableKernelWeights[8] : packoffset(c22);
+}
+
+SamplerState mainTextureSampler_s : register(s0);
+Texture2D<float4> mainTexture : register(t0);
+
+
+// 3Dmigoto declarations
+#define cmp -
+
+
+void main(
+  float4 v0 : SV_Position0,
+  float4 v1 : TEXCOORD0,
+  float2 v2 : TEXCOORD1,
+  out float4 o0 : SV_Target0)
+{
+  float4 r0,r1,r2;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.xyzw = seperableKernelWeights[0].xxzz * float4(0, 1, 0, 1) + v2.xyxy;
+  r1.xyzw = mainTexture.Sample(mainTextureSampler_s, r0.zw).xyzw; r1 = max(1e-6, r1);
+  r0.xyzw = mainTexture.Sample(mainTextureSampler_s, r0.xy).xyzw; r0 = max(1e-6, r0);
+  r1.xyzw = seperableKernelWeights[0].wwww * r1.xyzw;
+  r0.xyzw = seperableKernelWeights[0].yyyy * r0.xyzw + r1.xyzw;
+  r1.xyzw = seperableKernelWeights[1].xxzz * float4(0,1,0,1) + v2.xyxy;
+  r2.xyzw = mainTexture.Sample(mainTextureSampler_s, r1.xy).xyzw; r2 = max(1e-6, r2);
+  r1.xyzw = mainTexture.Sample(mainTextureSampler_s, r1.zw).xyzw; r1 = max(1e-6, r1);
+  r0.xyzw = seperableKernelWeights[1].yyyy * r2.xyzw + r0.xyzw;
+  r0.xyzw = seperableKernelWeights[1].wwww * r1.xyzw + r0.xyzw;
+  r1.xyzw = seperableKernelWeights[2].xxzz * float4(0,1,0,1) + v2.xyxy;
+  r2.xyzw = mainTexture.Sample(mainTextureSampler_s, r1.xy).xyzw; r2 = max(1e-6, r2);
+  r1.xyzw = mainTexture.Sample(mainTextureSampler_s, r1.zw).xyzw; r1 = max(1e-6, r1);
+  r0.xyzw = seperableKernelWeights[2].yyyy * r2.xyzw + r0.xyzw;
+  r0.xyzw = seperableKernelWeights[2].wwww * r1.xyzw + r0.xyzw;
+  r1.xy = seperableKernelWeights[3].xx * float2(0,1) + v2.xy;
+  r1.xyzw = mainTexture.Sample(mainTextureSampler_s, r1.xy).xyzw; r1 = max(1e-6, r1);
+  r0.xyzw = seperableKernelWeights[3].yyyy * r1.xyzw + r0.xyzw;
+  r1.xy = invPixelSize.xy * float2(0,7) + v2.xy;
+  r1.xyzw = mainTexture.Sample(mainTextureSampler_s, r1.xy).xyzw; r1 = max(1e-6, r1);
+  r0.xyzw = seperableKernelWeights[3].zzzz * r1.xyzw + r0.xyzw;
+  o0.xyzw = max(float4(0,0,0,0), r0.xyzw);
+  return;
+}
