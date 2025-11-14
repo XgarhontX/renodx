@@ -1,0 +1,32 @@
+#include "./common.hlsl"
+
+
+Tonemap_BloomScale(r.xyz);
+
+
+
+
+r0.xyz = Tonemap_Vignette(r0.xyz, vignetteParams, vignetteColor, v2);
+
+
+
+
+float3 colorU = r0.xyz; Tonemap_Vanilla(colorU, r0.xyz);
+
+float3 colorU = r0.xyz; Tonemap_Vanilla1(colorU, r0.xyz);
+
+float3 colorU = r0.xyz; Tonemap_InvGamma(colorU, r0.xyz, invGamma);
+
+
+r0.xyz = renodx::color::srgb::Decode(r0.xyz);
+
+
+Tonemap_Lut(colorU, r0.xyz, colorGradingTextureSampler_s, colorGradingTexture);
+
+
+
+Tonemap_FilmGrain(r0.xyz, colorU, filmGrainTextureScaleAndOffset, filmGrainColorScale, filmGrainTextureSampler_s, filmGrainTexture, v2);
+
+
+
+o0.xyz = Tonemap_Do(colorU, o0.xyz, v2.xy, mainTexture);
