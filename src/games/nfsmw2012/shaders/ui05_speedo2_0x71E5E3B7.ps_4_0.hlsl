@@ -175,7 +175,6 @@ if (!CUSTOM_IS_UI) discard;
   r1.xyzw = r2.yzwx * r1.xyzw;
   r2.w = v2.w;
   o0.xyzw = r1.xyzw * r2.xxxw + r0.xyzw;
-  // o0 = renodx::color::srgba::Encode(o0);
-  o0.xyz = renodx::color::srgb::Encode(o0.xyz);
+  o0.xyz = pow(o0.xyz,1/2.2);
   return;
 }

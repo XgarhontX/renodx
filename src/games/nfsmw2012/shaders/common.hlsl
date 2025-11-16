@@ -30,35 +30,6 @@ float3 EOTFEmulate(float3 color, float gamma, float threshold) {
 //   return color * CUSTOM_LENS_MULTIPLIER;
 // }
 
-float3 Tonemap_Decode(float3 x) {
-  return renodx::color::srgb::Decode(x);
-}
-float3 Tonemap_DecodeSafe(float3 x) {
-  return renodx::color::srgb::DecodeSafe(x);
-}
-float Tonemap_Decode(float x) {
-  return renodx::color::srgb::Decode(x);
-}
-float Tonemap_DecodeSafe(float x) {
-  return renodx::color::srgb::DecodeSafe(x);
-}
-float3 Tonemap_Encode(float3 x) {
-  return renodx::color::srgb::Encode(x);
-}
-float3 Tonemap_EncodeSafe(float3 x) {
-  return renodx::color::srgb::EncodeSafe(x);
-}
-float Tonemap_Encode(float x) {
-  return renodx::color::srgb::Encode(x);
-}
-float Tonemap_EncodeSafe(float x) {
-  return renodx::color::srgb::EncodeSafe(x);
-}
-
-float Tonemap_GetY(float3 color) {
-  return renodx::color::y::from::BT709(color);
-}
-
 // float3 Tonemap_PerChannelCorrect(float3 colorT, float3 colorU) {
 //   [branch]
 //   if (RENODX_TONE_MAP_TYPE > 0 && CUSTOM_PCC_STRENGTH > 0) {
@@ -99,16 +70,23 @@ float Tonemap_GetY(float3 color) {
 //   return color *= r0.x;
 // }
 
-void Tonemap_Lut(inout float3 colorU, inout float4 colorT, in SamplerState samp, Texture3D<float4> lut) {
-  float3 colorTBeforeLut = colorU;
-  // colorT = colorT * 0.96875 + 0.015625;
-  colorT = lut.Sample(samp, colorU);
+void Tonemap_Lut(inout float3 colorU, inout float4 colorT, in SamplerState samp, Texture3D<float4> lut, in float4 ColourCubeScalesOffsets) {
+  float3 colorTBeforeLut = colorT.xyz;
+
+  colorT.xyz = colorT.xyz * ColourCubeScalesOffsets.xyz + ColourCubeScalesOffsets.www;
+  colorT = lut.Sample(samp, colorT.xyz);
 
   //dual lut
   [branch]
   if (RENODX_TONE_MAP_TYPE > 0 && CUSTOM_DUALLUT_STRENGTH > 0) {
-    float3 t2 = colorTBeforeLut * CUSTOM_DUALLUT_SAMPLEMULTIPLIER;
-    // t2 = t2 * 0.96875 + 0.015625;
+    float3 t2 = colorTBeforeLut;
+    // t2 = renodx::color::srgb::Decode(t2);
+    // t2 *= t2;
+    t2 *= CUSTOM_DUALLUT_SAMPLEMULTIPLIER;
+    // t2 = renodx::color::srgb::Encode(t2);
+    // t2 *= sqrt(t2);
+
+    t2 = t2 * ColourCubeScalesOffsets.xyz + ColourCubeScalesOffsets.www;
     t2 = lut.Sample(samp, t2).xyz;
 
     float colorTy = renodx::color::y::from::BT709(colorT.xyz);
@@ -121,8 +99,16 @@ void Tonemap_Lut(inout float3 colorU, inout float4 colorT, in SamplerState samp,
     colorT.xyz = lerp(colorT.xyz, t2, strength).xyz;
   }
 
-  const float midgray = 0.75;
-  colorU *= renodx::color::gamma::Encode(renodx::color::y::from::BT709(lut.Sample(samp, midgray).xyz)) / midgray;
+  //mid gray exposure
+  [branch]
+  if (RENODX_TONE_MAP_TYPE > 0)
+  {
+    float a = 0.461;
+    float3 b = lut.Sample(samp, a).xyz;
+    float c = renodx::color::y::from::BT709(b);
+    float d = renodx::color::srgb::Decode(c);
+    colorU *= d / 0.18;
+  }
 }
 
 // void Tonemap_BloomScale(inout float3 color) {
@@ -131,15 +117,15 @@ void Tonemap_Lut(inout float3 colorU, inout float4 colorT, in SamplerState samp,
 
 float3 Tonemap_Do(float3 colorU, float3 colorT, float2 uv/* , Texture2D<float4> texColor */) {
   colorT = max(0, colorT);
-  colorT = Tonemap_Decode(colorT);
-  
+  // colorT = renodx::color::srgb::Decode(colorT);
+  colorT *= colorT;
+
   if (RENODX_TONE_MAP_TYPE > 0) {
-    colorU = max(0, colorU);
-    colorU = renodx::color::gamma::Decode(colorU, 4.4); //bruh, idk but it matches
-    colorU *= CUSTOM_PREEXPOSURE_MULTIPLIER * 8;
+    colorU *= CUSTOM_PREEXPOSURE_MULTIPLIER;
     [branch] if (CUSTOM_PREEXPOSURE_CONTRAST != 1.f) colorU = renodx::color::grade::Contrast(colorU, CUSTOM_PREEXPOSURE_CONTRAST, CUSTOM_PREEXPOSURE_CONTRAST_MID);
 
     renodx::draw::Config config = renodx::draw::BuildConfig();
+    // config.reno_drt_tone_map_method = 1.f;
     colorT = renodx::draw::ToneMapPass(colorU, colorT, renodx::tonemap::Reinhard(colorU), config);
 
     // colorT = renodx::effects::ApplyFilmGrainColored(colorT, uv, SEED, CUSTOM_FILMGRAIN_RENO);

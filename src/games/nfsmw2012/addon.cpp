@@ -111,6 +111,9 @@ renodx::mods::shader::CustomShaders custom_shaders = {
 //     {"ToneMapType", FLT_MIN},
 // };
 
+// Settings //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float current_settings_mode = 0;
+
 auto* setting_Encoding = new renodx::utils::settings::Setting{
     .key = "SwapChainEncoding",
     .binding = &shader_injection.swap_chain_encoding,
@@ -125,7 +128,7 @@ auto* setting_Encoding = new renodx::utils::settings::Setting{
       // return void
     },
     .is_global = true,
-    // .is_visible = []() { return current_settings_mode >= 2; },
+    .is_visible = []() { return current_settings_mode >= 2; },
 };
 
 auto* setting_Peak = new renodx::utils::settings::Setting{
@@ -137,11 +140,9 @@ auto* setting_Peak = new renodx::utils::settings::Setting{
     .section = "Brightness",
     .tooltip = "Sets the value of peak white in nits",
     .min = 48.f,
-    .max = 4000.f,
+    .max = 10000.f,
 };
 
-// Settings //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-float current_settings_mode = 0;
 renodx::utils::settings::Settings settings = {
     new renodx::utils::settings::Setting{
         .key = "SettingsMode",
@@ -195,18 +196,18 @@ renodx::utils::settings::Settings settings = {
 
     // Read Me //////////////////////////////////////////////////////////////////////////////////////
     new renodx::utils::settings::Setting{
-        .value_type = renodx::utils::settings::SettingValueType::TEXT,
+        .value_type = renodx::utils::settings::SettingValueType::BULLET,
         .label = "Swapchain Proxy Shaders, the ones that handle decoding, is broken for this game.\nDid you download the ReShade effect to use in its place?\nAnd all the SwapChain seetings here is placeholder until it works.",
         .section = "Read Me",
     },    
     new renodx::utils::settings::Setting{
-        .value_type = renodx::utils::settings::SettingValueType::TEXT,
+        .value_type = renodx::utils::settings::SettingValueType::BULLET,
         .label = "Super Sampling can break texture upgrade (makes color tex != aspect ratio).\nTry disabling, or using the other multiplier.",
         .section = "Read Me",
     },
     new renodx::utils::settings::Setting{
-        .value_type = renodx::utils::settings::SettingValueType::TEXT,
-        .label = "Gamma Correction in-game setting was 24% when I developed it.",
+        .value_type = renodx::utils::settings::SettingValueType::BULLET,
+        .label = "Btw, the default setting for Gamma Correction in-game is 28%.",
         .section = "Read Me",
     },
 
@@ -240,7 +241,7 @@ renodx::utils::settings::Settings settings = {
         .key = "GammaCorrection",
         .binding = &shader_injection.gamma_correction,
         .value_type = renodx::utils::settings::SettingValueType::INTEGER,
-        .default_value = 0.f,
+        .default_value = 1.f,
         .label = "Gamma Correction",
         .section = "Brightness",
         .tooltip = "Emulates a display EOTF.\n"
@@ -252,7 +253,7 @@ renodx::utils::settings::Settings settings = {
         .key = "SwapChainGammaCorrection",
         .binding = &shader_injection.swap_chain_gamma_correction,
         .value_type = renodx::utils::settings::SettingValueType::INTEGER,
-        .default_value = 0.f,
+        .default_value = 1.f,
         .label = "Gamma Correction UI",
         .section = "Brightness",
         .tooltip = "Emulates a display EOTF.\n"
@@ -274,6 +275,7 @@ renodx::utils::settings::Settings settings = {
         .tooltip = "Sets the tone mapper type.\n"
                    "- ACES is not recommended if you want to keep to stay true to the original chroma.",
         .labels = {"Vanilla", "None", "ACES", "RenoDRT"},
+        .is_visible = []() { return current_settings_mode >= 1; },
     },
 
     new renodx::utils::settings::Setting{
@@ -538,9 +540,9 @@ renodx::utils::settings::Settings settings = {
         .binding = &shader_injection.custom_lens,
         .value_type = renodx::utils::settings::SettingValueType::FLOAT,
         .default_value = 1.0f,
-        .label = "Lens Dirt Main",
+        .label = "Lens Dirt",
         .section = "Extra",
-        .tooltip = "Main static lens dirt multiplier.",
+        .tooltip = "All lens dirt overlay multiplier.",
         .max = 2.f,
         .format = "%.2f",
     },
@@ -572,32 +574,84 @@ renodx::utils::settings::Settings settings = {
         .default_value = 1.f,
         .label = "Multiplier",
         .section = "PreExposure",
-        .tooltip = "Exposure multiplier on HDR color before updgrading with SDR.",
+        .tooltip = "Exposure multiplier on HDR color before updgrading with SDR.\nTurn off Scene Grading and check if it matches Vanilla colors.",
         .max = 3.f,
         .format = "%.3f",
+        .is_visible = []() { return current_settings_mode >= 1; },
     },
     new renodx::utils::settings::Setting{
         .key = "custom_preexposure_contrast",
         .binding = &shader_injection.custom_preexposure_contrast,
-        .default_value = 1.0f,
+        .default_value = 1.4f,
         .label = "Contrast",
         .section = "PreExposure",
         .tooltip = "Contrast on HDR color before updgrading with SDR.\nTurn off Scene Grading and check if it matches Vanilla colors.",
         .max = 2.0f,
         .format = "%.3f",
+        .is_visible = []() { return current_settings_mode >= 1; },
     },    
     new renodx::utils::settings::Setting{
         .key = "custom_preexposure_contrast_mid",
         .binding = &shader_injection.custom_preexposure_contrast_mid,
-        .default_value = 0.25f,
+        .default_value = 0.18f,
         .label = "Constrast Mid Gray",
         .section = "PreExposure",
         .tooltip = "Mid gray of contrast adjustment.",
         // .min = -1.0f,
         .max = 1.f,
         .format = "%.3f",
+        .is_visible = []() { return current_settings_mode >= 1; },
     },
 
+    // Frostbite //////////////////////////////////////////////////////////////////////////////////////
+    new renodx::utils::settings::Setting{
+        .key = "custom_frostbite_exposure",
+        .binding = &shader_injection.custom_frostbite_exposure,
+        .default_value = 1.f,
+        .label = "Exposure",
+        .section = "Frostbite",
+        .tooltip = "Exposure, will influence blowout and LUT sampling.",
+        .max = 3.f,
+        // .parse = [](float value) { return value * 0.01f; },
+        .format = "%.3f",
+        .is_visible = []() { return current_settings_mode >= 1; },
+    },
+    new renodx::utils::settings::Setting{
+        .key = "custom_frostbite_startcomp",
+        .binding = &shader_injection.custom_frostbite_startcomp,
+        .default_value = 0.18f,
+        .label = "Shoulder Start",
+        .section = "Frostbite",
+        .tooltip = "Shoulder start, per channel blowout.",
+        .max = 1.f,
+        // .parse = [](float value) { return value * 0.01f; },
+        .format = "%.3f",
+        .is_visible = []() { return current_settings_mode >= 1; },
+    },
+    new renodx::utils::settings::Setting{
+        .key = "custom_frostbite_hue",
+        .binding = &shader_injection.custom_frostbite_hue,
+        .default_value = 0.4f,
+        .label = "Hue Correct",
+        .section = "Frostbite",
+        .tooltip = "Correct per channel blowout to original's hue.",
+        .max = 1.f,
+        // .parse = [](float value) { return value * 0.01f; },
+        .format = "%.3f",
+        .is_visible = []() { return current_settings_mode >= 1; },
+    },
+    new renodx::utils::settings::Setting{
+        .key = "custom_frostbite_satboost",
+        .binding = &shader_injection.custom_frostbite_satboost,
+        .default_value = 0.6f,
+        .label = "Saturation Boost",
+        .section = "Frostbite",
+        .tooltip = "Saturation boost after hue correction.",
+        .max = 1.f,
+        // .parse = [](float value) { return value * 0.01f; },
+        .format = "%.3f",
+        .is_visible = []() { return current_settings_mode >= 1; },
+    },
     // // Per Channel Correction //////////////////////////////////////////////////////////////////////////////////////
     // new renodx::utils::settings::Setting{
     //     .key = "custom_pcc_strength",
@@ -725,6 +779,8 @@ renodx::utils::settings::Settings settings = {
         .is_visible = []() { return current_settings_mode >= 2; },
     },
 
+    setting_Encoding,
+
     // Credits & Buttons //////////////////////////////////////////////////////////////////////////////////////
     new renodx::utils::settings::Setting{
         .value_type = renodx::utils::settings::SettingValueType::BULLET,
@@ -838,22 +894,22 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
         renodx::mods::swapchain::set_color_space = true;
         // renodx::mods::swapchain::swapchain_proxy_revert_state = true;
         // renodx::mods::swapchain::swapchain_proxy_compatibility_mode = false;
-        // renodx::mods::swapchain::swap_chain_proxy_shaders = { //THESE ARE BROKEN FOR THIS GAME! "mods::swapchain::DrawSwapChainProxy(Pipeline creation failed.)"
-        //     {
-        //         reshade::api::device_api::d3d11,
-        //         {
-        //             .vertex_shader = __swap_chain_proxy_vertex_shader_dx11,
-        //             .pixel_shader = __swap_chain_proxy_pixel_shader_dx11,
-        //         },
-        //     },
-        //     // {
-        //     //     reshade::api::device_api::d3d12,
-        //     //     {
-        //     //         .vertex_shader = __swap_chain_proxy_vertex_shader_dx12,
-        //     //         .pixel_shader = __swap_chain_proxy_pixel_shader_dx12,
-        //     //     },
-        //     // },
-        // };
+        renodx::mods::swapchain::swap_chain_proxy_shaders = {
+            {
+                reshade::api::device_api::d3d11,
+                {
+                    .vertex_shader = __swap_chain_proxy_vertex_shader_base,
+                    .pixel_shader = __swap_chain_proxy_pixel_shader_base,
+                },
+            },
+            // {
+            //     reshade::api::device_api::d3d12,
+            //     {
+            //         .vertex_shader = __swap_chain_proxy_vertex_shader_dx12,
+            //         .pixel_shader = __swap_chain_proxy_pixel_shader_dx12,
+            //     },
+            // },
+        };
 
         renodx::mods::swapchain::force_borderless = false;
         // renodx::mods::swapchain::prevent_full_screen = false;
@@ -864,7 +920,7 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD fdw_reason, LPVOID lpv_reserved) {
           renodx::mods::swapchain::SetUseHDR10(is_hdr10);
           renodx::mods::swapchain::use_resize_buffer = setting_Encoding->GetValue() < 4;
           shader_injection.swap_chain_encoding_color_space = is_hdr10 ? 1.f : 0.f;
-          settings.push_back(setting_Encoding);
+        //   settings.push_back(setting_Encoding);
 
           renodx::mods::swapchain::swap_chain_upgrade_targets.push_back({
               .old_format = reshade::api::format::r8g8b8a8_unorm,

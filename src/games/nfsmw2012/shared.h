@@ -87,6 +87,11 @@ struct ShaderInjectData {
   float custom_preexposure_contrast;
   float custom_preexposure_contrast_mid;
 
+  float custom_frostbite_exposure;
+  float custom_frostbite_startcomp;
+  float custom_frostbite_satboost;
+  float custom_frostbite_hue;
+
   // float custom_filmgrain;
   // float custom_pcc_strength;
   // float custom_pcc_pow;
@@ -180,7 +185,10 @@ cbuffer shader_injection : register(b13) {
 #define CUSTOM_PREEXPOSURE_CONTRAST shader_injection.custom_preexposure_contrast
 #define CUSTOM_PREEXPOSURE_CONTRAST_MID shader_injection.custom_preexposure_contrast_mid
 
-
+#define CUSTOM_FROSTBITE_STARTCOMP shader_injection.custom_frostbite_startcomp
+#define CUSTOM_FROSTBITE_SATBOOST shader_injection.custom_frostbite_satboost
+#define CUSTOM_FROSTBITE_HUE shader_injection.custom_frostbite_hue
+#define CUSTOM_FROSTBITE_EXPOSURE shader_injection.custom_frostbite_exposure
 
 #define SEED shader_injection.seed
 

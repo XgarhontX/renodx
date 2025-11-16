@@ -47,17 +47,30 @@ void main(
   r0.z = max(g_DOF_True_K4K5K6.z, r0.z);
   r0.z = 15 * abs(r0.z);
   r0.z = min(1, r0.z);
+
   r1.xyzw = SamplerDof.Sample(SamplerDof_s, r0.xy).xyzw;
+
   r2.xyzw = SamplerSource.Sample(SamplerSource_s, r0.xy).xyzw;
   r0.xyw = -r2.xyz + r1.xyz;
   r0.xyz = r0.zzz * r0.xyw + r2.xyz;
-  r1.xyzw = SamplerSplatter.Sample(SamplerSplatter_s, v1.xy).xyzw;
+
+  r1.xyzw = SamplerSplatter.Sample(SamplerSplatter_s, v1.xy).xyzw * CUSTOM_LENS;
   r0.w = 1 + -r1.w;
   r0.xyz = r0.xyz * r0.www + r1.xyz;
-  r0.xyz = r0.xyz * ColourCubeScalesOffsets.xyz + ColourCubeScalesOffsets.www;
-  float3 colorU = r0.xyz;
+
+  float3 colorU = 0;
+  if (RENODX_TONE_MAP_TYPE > 0) {
+    r0.xyz = r0.xyz * r0.xyz * (1.4 * 0.75 * CUSTOM_FROSTBITE_EXPOSURE); //decode intermediate + exp
+    colorU = r0.xyz;
+    r0.xyz = renodx::tonemap::frostbite::BT709(r0.xyz, 1, CUSTOM_FROSTBITE_STARTCOMP, CUSTOM_FROSTBITE_SATBOOST, CUSTOM_FROSTBITE_HUE);
+    r0.xyz = renodx::color::srgb::Encode(r0.xyz);
+    // r0.xyz *= sqrt(r0.xyz);
+  }
+  
+  // r0.xyz = r0.xyz * ColourCubeScalesOffsets.xyz + ColourCubeScalesOffsets.www;
   // r0 = Sampler3dTint.Sample(Sampler3dTint_s, r0.xyz);  // LUT
-  Tonemap_Lut(colorU, r0, Sampler3dTint_s, Sampler3dTint);
+  Tonemap_Lut(colorU, r0, Sampler3dTint_s, Sampler3dTint, ColourCubeScalesOffsets);
+
   r0.xyz = Tonemap_Do(colorU, r0.xyz, v1);
   o0 = r0;
   return;
