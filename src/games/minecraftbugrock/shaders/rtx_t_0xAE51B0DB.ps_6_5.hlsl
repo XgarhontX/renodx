@@ -145,9 +145,9 @@ float4 main(
     _250 = exp2(log2(lerp(_227, _223, gToneMappingSaturation.x)) * gToneMappingGamma.x);
     _251 = exp2(log2(lerp(_227, _224, gToneMappingSaturation.x)) * gToneMappingGamma.x);
 
-    float _222d = max(0, (((gToneMappingColorBalance.x * _197) + -0.18000000715255737f) * gToneMappingContrast.x) + 0.18000000715255737f);
-    float _223d = max(0, (((gToneMappingColorBalance.y * _198) + -0.18000000715255737f) * gToneMappingContrast.x) + 0.18000000715255737f);
-    float _224d = max(0, (((gToneMappingColorBalance.z * _199) + -0.18000000715255737f) * gToneMappingContrast.x) + 0.18000000715255737f);
+    float _222d = max(0, (((gToneMappingColorBalance.x * colorU.x) + -0.18000000715255737f) * gToneMappingContrast.x) + 0.18000000715255737f);
+    float _223d = max(0, (((gToneMappingColorBalance.y * colorU.y) + -0.18000000715255737f) * gToneMappingContrast.x) + 0.18000000715255737f);
+    float _224d = max(0, (((gToneMappingColorBalance.z * colorU.z) + -0.18000000715255737f) * gToneMappingContrast.x) + 0.18000000715255737f);
     float _227d = dot(float3(_222, _223, _224), float3(0.2125999927520752f, 0.7152000069618225f, 0.0722000002861023f));
     _249d = exp2(log2(lerp(_227, _222, gToneMappingSaturation.x)) * gToneMappingGamma.x);
     _250d = exp2(log2(lerp(_227, _223, gToneMappingSaturation.x)) * gToneMappingGamma.x);
@@ -192,9 +192,9 @@ float4 main(
     _299 = _260;
   }
 
-  uint _310 = ((uint)(uint(abs(ScreenSize.x * TEXCOORD.x))) << 16) + uint(abs(ScreenSize.y * TEXCOORD.y));
-  uint _314 = ((_310 ^ 61) ^ ((uint)(_310) >> 16)) * 9;
-  uint _317 = (((uint)(_314) >> 4) ^ _314) * 668265261;
+  // uint _310 = ((uint)(uint(abs(ScreenSize.x * TEXCOORD.x))) << 16) + uint(abs(ScreenSize.y * TEXCOORD.y));
+  // uint _314 = ((_310 ^ 61) ^ ((uint)(_310) >> 16)) * 9;
+  // uint _317 = (((uint)(_314) >> 4) ^ _314) * 668265261;
   // float _322 = 0.0019607844296842813f - (float((uint)((int)(((uint)(_317) >> 15) ^ _317))) * 1.8261228033195076e-12f); //noise or dither
   float4 _326 = s_gRasterizedInputTexture.Sample(s_gRasterizedInputSampler, float2(TEXCOORD.x, TEXCOORD.y));
   float _331 = 1.0f - _326.w;
