@@ -1,0 +1,140 @@
+// ---- Created with 3Dmigoto v1.3.16 on Tue Nov 25 18:55:06 2025
+
+cbuffer TileMaxConstants : register(b10)
+{
+  float TILE_SIZE : packoffset(c0);
+  float HalfExposure : packoffset(c0.y);
+  float cS : packoffset(c0.z);
+  float cMaxSampleTapDistance : packoffset(c0.w);
+  float3 SeparateTranslucencyTint : packoffset(c1);
+  float Padding : packoffset(c1.w);
+}
+
+SamplerState VelocityTextureSampler_s : register(s0);
+SamplerState NeighborMaxTextureSampler_s : register(s1);
+SamplerState RandomTextureSampler_s : register(s2);
+SamplerState ColorTextureSampler_s : register(s3);
+SamplerState SeparateTranslucencyTextureSampler_s : register(s4);
+Texture2D<float4> VelocityTexture : register(t0);
+Texture2D<float4> NeighborMaxTexture : register(t1);
+Texture2D<float4> RandomTexture : register(t2);
+Texture2D<float4> ColorTexture : register(t3);
+Texture2D<float4> SeparateTranslucencyTexture : register(t4);
+
+
+// 3Dmigoto declarations
+#define cmp -
+
+
+void main(
+  float4 v0 : SV_Position0,
+  float2 v1 : TEXCOORD0,
+  out float4 o0 : SV_Target0)
+{
+  float4 r0,r1,r2,r3,r4,r5,r6,r7,r8;
+  uint4 bitmask, uiDest;
+  float4 fDest;
+
+  r0.xyzw = ColorTexture.Sample(ColorTextureSampler_s, v1.xy).xyzw;
+  r1.xy = NeighborMaxTexture.Sample(NeighborMaxTextureSampler_s, v1.xy).xy;
+  r1.z = dot(r1.xy, r1.xy);
+  r1.z = sqrt(r1.z);
+  r1.w = HalfExposure * r1.z;
+  r2.x = max(0.100000001, r1.w);
+  r2.x = min(TILE_SIZE, r2.x);
+  r2.yzw = SeparateTranslucencyTexture.Sample(SeparateTranslucencyTextureSampler_s, v1.xy).xyz;
+  // float3 cT = r2.yzw;
+  r3.x = cmp(r2.x < 0.25);
+  r3.yz = TILE_SIZE * v1.xy;
+  r3.y = RandomTexture.Sample(RandomTextureSampler_s, r3.yz).x;
+  if (r3.x != 0) {
+    o0.xyz = SeparateTranslucencyTint.xyz * r2.yzw + r0.xyz;
+    // o0.xyz = lerp(cT.xyz, o0.xyz, 0.1);
+    o0.w = 1;
+    return;
+  }
+  ColorTexture.GetDimensions(0, uiDest.x, uiDest.y, uiDest.z);
+  r3.x = uiDest.x;
+  r3.x = (uint)r3.x;
+  r1.w = cmp(r1.w >= 0.00999999978);
+  r1.z = r2.x / r1.z;
+  r3.zw = r1.xy * r1.zz;
+  r1.xy = r1.ww ? r3.zw : r1.xy;
+  r1.zw = VelocityTexture.Sample(VelocityTextureSampler_s, v1.xy).xy;
+  r1.z = dot(r1.zw, r1.zw);
+  r1.z = sqrt(r1.z);
+  r1.z = HalfExposure * r1.z;
+  r1.z = max(0.100000001, r1.z);
+  r1.z = min(TILE_SIZE, r1.z);
+  r1.w = -0.5 + r3.y;
+  r2.x = 0.0166666675 * cS;
+  r2.x = r2.x / r1.z;
+  r0.xyz = r2.xxx * r0.xyz;
+  r3.yz = float2(-1,1) + cS;
+  r3.y = 0.5 * r3.y;
+  r3.y = (int)r3.y;
+  r3.w = cMaxSampleTapDistance / r3.x;
+  r3.x = 0.5 / r3.x;
+  r4.x = (int)r3.y + 1;
+  r4.y = r3.w + r3.w;
+  r4.z = 0.0999999642 * r1.z;
+  r4.z = 1 / r4.z;
+  r5.xyz = r0.xyz;
+  r4.w = r2.x;
+  r5.w = 0;
+  while (true) {
+    r6.x = (uint)r5.w;
+    r6.y = cmp(r6.x >= cS);
+    if (r6.y != 0) break;
+    r6.y = cmp((int)r3.y == (int)r5.w);
+    if (r6.y != 0) {
+      r5.w = r4.x;
+      continue;
+    }
+    r6.x = r6.x + r1.w;
+    r6.x = 1 + r6.x;
+    r6.x = r6.x / r3.z;
+    r6.x = r6.x * r4.y + -r3.w;
+    r6.yz = r1.xy * r6.xx + r3.xx;
+    r6.yz = v1.xy + r6.yz;
+    r7.xy = VelocityTexture.SampleLevel(VelocityTextureSampler_s, r6.yz, 0).xy;
+    r6.w = dot(r7.xy, r7.xy);
+    r6.w = sqrt(r6.w);
+    r6.w = HalfExposure * r6.w;
+    r6.w = max(0.100000001, r6.w);
+    r6.w = min(TILE_SIZE, r6.w);
+    r7.xyzw = ColorTexture.SampleLevel(ColorTextureSampler_s, r6.yz, 0).xyzw;
+    r6.y = abs(r7.w) + -abs(r0.w);
+    r6.y = saturate(-r6.y * 10 + 1);
+    r6.z = abs(r6.x) / r6.w;
+    r6.z = 1 + -r6.z;
+    r7.w = -abs(r7.w) + abs(r0.w);
+    r7.w = saturate(-r7.w * 10 + 1);
+    r8.x = abs(r6.x) / r1.z;
+    r8.x = 1 + -r8.x;
+    r7.w = r8.x * r7.w;
+    r6.y = r6.y * r6.z + r7.w;
+    r6.z = 0.0999999642 * r6.w;
+    r6.w = -r6.w * 0.949999988 + abs(r6.x);
+    r6.z = 1 / r6.z;
+    r6.z = saturate(r6.w * r6.z);
+    r6.w = r6.z * -2 + 3;
+    r6.z = r6.z * r6.z;
+    r6.z = -r6.w * r6.z + 1;
+    r6.x = -r1.z * 0.949999988 + abs(r6.x);
+    r6.x = saturate(r6.x * r4.z);
+    r6.w = r6.x * -2 + 3;
+    r6.x = r6.x * r6.x;
+    r6.x = -r6.w * r6.x + 1;
+    r6.x = dot(r6.zz, r6.xx);
+    r6.x = r6.y + r6.x;
+    r4.w = r6.x + r4.w;
+    r5.xyz = r6.xxx * r7.xyz + r5.xyz;
+    r5.w = (int)r5.w + 1;
+  }
+  r0.xyz = r5.xyz / r4.www;
+  o0.xyz = SeparateTranslucencyTint.xyz * r2.yzw + r0.xyz;
+  // o0.xyz = lerp(cT.xyz, o0.xyz, 0.1);
+  o0.w = 1;
+  return;
+}
