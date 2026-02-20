@@ -1,0 +1,42 @@
+sampler2D ColourSampler : register( s0 );
+sampler2D DepthBufferSampler : register( s11 );
+float4 g_vDepthScale : register( c57 );
+
+struct PS_IN
+{
+	float2 texcoord : TEXCOORD;
+	float3 texcoord1 : TEXCOORD1;
+	float4 texcoord2 : TEXCOORD2;
+};
+
+#include "../shared.h"
+
+float4 main(PS_IN i) : COLOR
+{
+	float4 o;
+
+	float4 r0;
+	float4 r1;
+
+	r0.x = 1 / i.texcoord2.w;
+	r0.yz = r0.x * i.texcoord2.x;
+	r0.x = /* saturate */(i.texcoord2.z * -r0.x + 1);
+
+	r1 = tex2D(DepthBufferSampler, r0.yz);
+	r0.y = abs(r1.x) + -g_vDepthScale.x;
+	r0.y = 1 / r0.y;
+	r0.y = saturate(g_vDepthScale.y * r0.y + -i.texcoord2.w);
+	r0.x = r0.x * r0.y;
+
+	r1 = tex2D(ColourSampler, i.texcoord); //broiken
+	r0.yzw = r1.xyz * i.texcoord1.xyz;
+	r0.xyz = r0.x * r0.yzw;
+	o.xyz = r1.w * r0.xyz;
+	
+	r0.x = (-r1.w >= 0) ? 0 : 1;
+	r0.y = (r1.w >= 0) ? -0 : -1;
+	r0.x = r0.y + r0.x;
+	o.w = r0.x * 0.003921569;
+
+	return o;
+}
