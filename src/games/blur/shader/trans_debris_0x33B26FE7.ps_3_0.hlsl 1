@@ -1,0 +1,103 @@
+sampler2D depthMap : register( s2 );
+float4 g_BlendSettings : register( c29 );
+float4 g_DepthFog : register( c25 );
+float4 g_FogColour : register( c24 );
+float4 g_vDepthScale : register( c8 );
+float4 g_vLuminance : register( c31 );
+float4 g_vProjScale : register( c10 );
+sampler2D textureMap : register( s0 );
+
+struct PS_IN
+{
+	float4 texcoord : TEXCOORD;
+	float4 texcoord1 : TEXCOORD1;
+	float4 texcoord2 : TEXCOORD2;
+	float4 texcoord3 : TEXCOORD3;
+};
+
+#include "../shared.h"
+
+//broken
+float4 main(PS_IN i) : COLOR
+{
+	float4 o;
+
+	float4 r0;
+	float4 r1;
+	float3 r2;
+	r0.x = 1 / i.texcoord1.w;
+	r0.xy = /* saturate */(i.texcoord1.xy * r0.x + g_vProjScale.xy);
+
+	r0 = tex2D(depthMap, r0);
+	r0.x = abs(r0.x) + -g_vDepthScale.x;
+	r0.x = 1 / r0.x;
+	r0.x = /* saturate */(g_vDepthScale.y * r0.x + -i.texcoord1.w);
+	r0.y = 1 / i.texcoord.w;
+	r0.x = saturate(r0.y * r0.x);
+	r1 = tex2D(textureMap, i.texcoord);
+	r0.y = r1.w * i.texcoord3.w;
+	r0.x = r0.x * r0.y;
+	r0.y = -g_DepthFog.y + i.texcoord2.w;
+	r0.z = -r0.y * g_DepthFog.x;
+	r0.z = r0.z * g_DepthFog.z;
+	r0.z = r0.z * 1.442695;
+	r0.z = exp2(r0.z);
+	r0.y = (r0.y >= 0) ? r0.z : 1;
+	r2.xyz = g_FogColour.xyz;
+	r2.xyz = r2.xyz * g_BlendSettings.x;
+	r1.xyz = r1.xyz * i.texcoord3.xyz + -r2.xyz;
+	r0.yzw = r0.y * r1.xyz + r2.xyz;
+	r0.yzw = r0.xyz * g_vLuminance.x;
+	r0.y = 1 / sqrt(r0.y);
+	r1.x = 1 / r0.y;
+	r0.y = 1 / sqrt(r0.z);
+	r0.z = 1 / sqrt(r0.w);
+	r1.z = 1 / r0.z;
+	r1.y = 1 / r0.y;
+	o.xyz = r0.x * r1.xyz;
+	o.w = r0.x * i.texcoord.z;
+
+	return o;
+}
+
+/*
+    ps_3_0
+      0x00000198:     def c0, 1.44269502, 1, 0, 0
+      0x000001B0:     dcl_texcoord v0
+      0x000001BC:     dcl_texcoord1 v1.xyw
+      0x000001C8:     dcl_texcoord2 v2.w
+      0x000001D4:     dcl_texcoord3 v3
+      0x000001E0:     dcl_2d s0
+      0x000001EC:     dcl_2d s2
+			
+   0  0x000001F8:     rcp r0.x, v1.w
+   1  0x00000204:     mad r0.xy, v1, r0.x, c10
+   2  0x00000218:     texld r0, r0, s2
+   2  0x00000228:     add r0.x, r0_abs.x, -c8.x
+   3  0x00000238:     rcp r0.x, r0.x
+   4  0x00000244:     mad r0.x, c8.y, r0.x, -v1.w
+   5  0x00000258:     rcp r0.y, v0.w
+   6  0x00000264:     mul_sat r0.x, r0.y, r0.x
+   7  0x00000274:     texld r1, v0, s0
+   7  0x00000284:     mul r0.y, r1.w, v3.w
+   8  0x00000294:     mul r0.x, r0.x, r0.y
+   9  0x000002A4:     add r0.y, -c25.y, v2.w
+  10  0x000002B4:     mul r0.z, -r0.y, c25.x
+  11  0x000002C4:     mul r0.z, r0.z, c25.z
+  12  0x000002D4:     mul r0.z, r0.z, c0.x
+  13  0x000002E4:     exp r0.z, r0.z
+  14  0x000002F0:     cmp r0.y, r0.y, r0.z, c0.y
+  15  0x00000304:     mov r2.xyz, c24
+  16  0x00000310:     mul r2.xyz, r2, c29.x
+  17  0x00000320:     mad r1.xyz, r1, v3, -r2
+  18  0x00000334:     mad r0.yzw, r0.y, r1.xxyz, r2.xxyz
+  19  0x00000348:     mul r0.yzw, r0, c31.x
+  20  0x00000358:     rsq r0.y, r0.y
+  21  0x00000364:     rcp r1.x, r0.y
+  22  0x00000370:     rsq r0.y, r0.z
+  23  0x0000037C:     rsq r0.z, r0.w
+  24  0x00000388:     rcp r1.z, r0.z
+  25  0x00000394:     rcp r1.y, r0.y
+  26  0x000003A0:     mul oC0.xyz, r0.x, r1
+  27  0x000003B0:     mul oC0.w, r0.x, v0.z
+*/

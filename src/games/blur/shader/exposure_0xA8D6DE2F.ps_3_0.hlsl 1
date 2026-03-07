@@ -1,0 +1,29 @@
+float4 g_vLuminance : register( c31 );
+float4 g_vWeightSettings : register( c0 );
+sampler2D textureMap : register( s0 );
+
+float4 main(float2 texcoord : TEXCOORD) : COLOR
+{
+	float4 o;
+
+// 	float4 r0;
+// 	float2 r1;
+// 	r0 = tex2D(textureMap, texcoord);
+// 	r0.x = -r0.w + 1;
+// 	r1.xy = float2(1, 0.0001);
+// 	r0.x = r0.x * g_vLuminance.z + r1.y;
+// 	r0.x = log2(r0.x);
+// 	r0.x = r0.x * 0.6931472;
+// 	r0.yz = g_vWeightSettings.x + -texcoord.x;
+// 	r0.y = dot(r0.y, r0.y) + 0;
+// 	r0.y = 1 / sqrt(r0.y);
+// 	r0.y = 1 / r0.y;
+// 	r0.y = r0.y * -g_vWeightSettings.z + r1.x;
+// 	o.x = r0.y * r0.x;
+// 	o.y = r0.y;
+// 	o.zw = float2(1, 0.0001);
+
+  o = 10000000;
+
+	return o;
+}

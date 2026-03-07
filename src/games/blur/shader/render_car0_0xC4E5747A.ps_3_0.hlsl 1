@@ -1,0 +1,229 @@
+// ======================================================
+// Samplers
+// ======================================================
+
+sampler2D BumpTextureSampler              : register(s8);
+sampler2D DentTextureSampler              : register(s12);
+sampler2D MeshTextureSampler              : register(s7);
+sampler2D PaintTextureSampler             : register(s13);
+sampler2D ScratchTextureSampler           : register(s9);
+
+samplerCUBE EnvironmentTextureSampler     : register(s14);
+samplerCUBE LightEnvironmentTextureSampler: register(s5);
+
+// ======================================================
+// Constants
+// ======================================================
+
+float4 g_vViewPosition;      // c24
+float4 g_vLuminance;         // c48
+float4 g_VehiclePixParams;   // c196
+
+float4 g_vUndercoatColour;   // c203
+float4 g_vScuffColour;       // c204
+float4 g_vMtlParameters;     // c209
+
+float4 g_FogColour;          // c32
+float4 g_FogParams;          // c33
+
+float4 g_SunColour;          // c12
+float4 g_SkyColour;          // c13
+float4 g_BakedColour;        // c14
+float4 g_EmissiveColour;     // c15
+float4 g_LightParams;        // c16
+
+// ======================================================
+
+struct PS_IN
+{
+    float4 v0 : TEXCOORD0;
+    float4 v1 : TEXCOORD1;
+    float4 v2 : TEXCOORD2;
+    float2 v3 : TEXCOORD3;
+    float4 v4 : TEXCOORD4;
+};
+
+// ======================================================
+
+float4 main(PS_IN IN) : COLOR0
+{
+    // --- constants (inline)
+    float3 C0 = float3(0.85, 2.86159992, 0.288399994);
+    float4 C1 = float4(2, 0, -1, -3);
+    float4 C2 = float4(-0.498046875, 0.5, 0.1, 10);
+    float4 C3 = float4(0.9, 0.1, 0.75, 0.25);
+    float4 C4 = float4(15, 30, 8, 1.44269502);
+
+    float4 r0,r1,r2,r3,r4,r5,r6,r7,r8;
+
+    // --------------------------------------------------
+    // Dent + Base Normal
+    // --------------------------------------------------
+
+    r0.x = saturate(IN.v0.w);
+    r0.x *= C1.w;
+
+    r1 = tex2D(DentTextureSampler, IN.v1.zw);
+
+    r0.yz = r1.xx + C2.x;
+    r0.xy = r0.x * r0.yz;
+
+    r0.z = dot(IN.v0, IN.v0);
+    r0.z = rsqrt(r0.z);
+
+    r1.xyz = r0.z * IN.v0.yxz;
+
+    r0.yzw = r0.y * r1.xxy;
+    r0.xyz = r0.x * r1.yzx - r0.yzw;
+
+    r0.xyz = r0.xyz * C2.y + r1.yxz;
+
+    r0.w = dot(r0.xyz, r0.xyz);
+    r0.w = rsqrt(r0.w);
+
+    // --------------------------------------------------
+    // Bump Normal
+    // --------------------------------------------------
+
+    r2 = tex2D(BumpTextureSampler, IN.v3);
+    r2.xy = r2.xy + C2.x;
+    r2.xy *= g_vMtlParameters.z;
+    r2.xy += r2.xy;
+
+    r2.yzw = r1.xxy * r2.y;
+    r1.xyz = r2.x * r1.yzx - r2.yzw;
+    r1.xyz *= C2.y;
+
+    r0.xyz = r0.xyz * r0.w + r1.xyz;
+
+    r1.xyz = normalize(r0.xyz);
+
+    // --------------------------------------------------
+    // View Vector + Fog
+    // --------------------------------------------------
+
+    r0.xyz = g_vViewPosition.xyz - IN.v2.xyz;
+
+    r0.w = dot(r0.xyz, r0.xyz);
+    r0.w = rsqrt(r0.w);
+
+    r0.xyz *= r0.w;
+
+    float dist = 1.0 / r0.w;
+    float fog = saturate(exp(-dist * g_FogParams.x * C4.w));
+
+    // --------------------------------------------------
+    // Reflection Vector
+    // --------------------------------------------------
+
+    float NdotV = dot(r1.xyz, r0.xyz);
+    float NdotV2 = NdotV + NdotV;
+
+    float NdotV_sat = saturate(NdotV);
+
+    r0.xyz = r0.xyz - r1.xyz * NdotV2;
+
+    float fresnel = saturate(r1.y * C3.z + C3.w);
+
+    r3.xyz = normalize(-r0.xyz);
+
+    r4 = texCUBE(EnvironmentTextureSampler, r3.xyz);
+    r3 = texCUBE(LightEnvironmentTextureSampler, r3.xyz);
+
+    r0.xyz = r4.xyz * r4.xyz;
+    r0.xyz *= g_vLuminance.y;
+
+    // --------------------------------------------------
+    // Paint + Scratch
+    // --------------------------------------------------
+
+    float4 paint = tex2Dlod(PaintTextureSampler, float4(0,0,0,0));
+    float4 scratch = tex2D(ScratchTextureSampler, IN.v1.zw);
+
+    float scratchMask = max(scratch.x * C2.y + C2.z, scratch.y);
+
+    float wearA = saturate(IN.v2.w * C1.x + C1.z);
+    float wearB = saturate(IN.v2.w * C1.x + C1.y);
+
+    wearA *= scratch.x;
+    wearB *= scratch.x;
+
+    float wearBlend = saturate((IN.v2.w * scratch.y - C2.y) * 2);
+    wearBlend *= wearBlend;
+
+    float wearMax = max(wearA, wearB);
+
+    float wear = saturate(IN.v2.w * scratchMask + wearMax);
+
+    float paintMask = 1 - wear;
+
+    float paintAlpha = paint.w;
+
+    float envScale = paintMask * paintAlpha;
+    float envInv = 1 - paintMask * paintAlpha;
+
+    r0.xyz *= envScale;
+
+    // --------------------------------------------------
+    // Paint Color Layers
+    // --------------------------------------------------
+
+    r6.xyz = lerp(g_vScuffColour.xyz, g_vUndercoatColour.xyz, wearB);
+
+    r7 = tex2D(MeshTextureSampler, IN.v1.xy);
+    r8.xyz = lerp(paint.xyz, r7.xyz, r7.w);
+
+    float3 paintLayer = lerp(r8.xyz, r6.xyz, wearMax);
+
+    float3 baked = g_BakedColour.xyz * IN.v4.xyz * g_LightParams.x;
+
+    paintLayer *= baked;
+
+    float3 specAdd = fresnel * baked;
+
+    r0.xyz += paintLayer * wear + specAdd;
+
+    // --------------------------------------------------
+    // Light Environment Contribution
+    // --------------------------------------------------
+
+    float envPower = exp(C4.x);
+    float envPower2 = exp(C4.y);
+
+    float envCurve = envPower * envPower2;
+    envCurve *= IN.v4.w;
+    envCurve *= envScale;
+    envCurve *= -C1.w;
+
+    float3 lightEnv = r3.xyz * (r3.w * C4.z);
+
+    r0.xyz += lightEnv * envCurve;
+
+    float3 lightEnv2 = lightEnv * lightEnv;
+    lightEnv2 *= NdotV2;
+    lightEnv2 *= IN.v4.w;
+
+    r0.xyz += lightEnv2 * C2.z;
+
+    // --------------------------------------------------
+    // Fog Blend
+    // --------------------------------------------------
+
+    float3 fogged = lerp(g_FogColour.xyz, r0.xyz, fog);
+
+    // --------------------------------------------------
+    // Luminance Normalize
+    // --------------------------------------------------
+
+    float lum = dot(fogged, C0);
+
+    float3 tone = fogged * g_vLuminance.x;
+
+    float alphaMask = saturate(1 - lum);
+    float alpha = alphaMask * g_VehiclePixParams.x;
+
+    // Per-channel sqrt via rsq/rcp chain
+    float3 outRGB = sqrt(abs(tone)) * g_VehiclePixParams.x;
+
+    return float4(outRGB, alpha);
+}

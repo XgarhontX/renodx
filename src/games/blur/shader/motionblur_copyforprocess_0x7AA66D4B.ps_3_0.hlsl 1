@@ -1,0 +1,19 @@
+sampler2D g_tColour : register( s0 );
+sampler2D g_tDepthStencil : register( s1 );
+
+float4 main(float2 texcoord : TEXCOORD) : COLOR
+{
+	float4 o;
+
+	float4 r0;
+
+	//color
+	r0 = tex2D(g_tColour, texcoord);
+	o.xyz = r0.xyz * 0.5;
+
+	//depth
+	r0 = tex2D(g_tDepthStencil, texcoord);
+	o.w = r0.x;
+
+	return o;
+}
