@@ -1,0 +1,34 @@
+float Gamma : register( c0 );
+sampler2D Texture : register( s0 );
+
+struct PS_IN
+{
+	float2 texcoord : TEXCOORD;
+	float4 texcoord1 : TEXCOORD1;
+};
+
+float4 main(PS_IN i) : COLOR
+{
+	float4 o;
+
+	float4 r0;
+	float4 r1;
+	float3 r2;
+	r0.x = Gamma.x;
+	r0.x = r0.x + -1;
+	r1 = tex2D(Texture, i.texcoord);
+	r1 = r1 * i.texcoord1;
+	r0.yzw = r1.yzww;
+	r2.xyz = max(r0.yzww, 0.0001);
+	r0.y = log2(r2.x);
+	r0.z = log2(r2.y);
+	r0.w = log2(r2.z);
+	r0.yzw = r0.xyz * Gamma.x;
+	r2.x = exp2(r0.y);
+	r2.y = exp2(r0.z);
+	r2.z = exp2(r0.w);
+	o.xyz = (-abs(r0.x) >= 0) ? r1.xyz : r2.xyz;
+	o.w = r1.w;
+
+	return o;
+}

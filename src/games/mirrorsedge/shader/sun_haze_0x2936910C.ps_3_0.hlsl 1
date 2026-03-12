@@ -1,0 +1,59 @@
+float4 HazeColor : register( c2 );
+float4 HazePacked : register( c3 );
+float4 HazePacked2 : register( c4 );
+float Multiplier : register( c5 );
+sampler2D SceneColorTexture : register( s0 );
+float4 SunVector : register( c0 );
+float TotalClampLow : register( c6 );
+
+struct PS_IN
+{
+	float2 texcoord : TEXCOORD;
+	float4 texcoord1 : TEXCOORD1;
+	float4 texcoord2 : TEXCOORD2;
+};
+
+float4 main(PS_IN i) : COLOR
+{
+	float4 o;
+
+	float4 r0;
+	float4 r1;
+	float4 r2;
+	float3 r3;
+	r0.x = dot(i.texcoord2, i.texcoord2);
+	r0.x = 1 / sqrt(r0.x);
+	r1 = r0.x * i.texcoord2;
+	r0.x = 1 / r0.x;
+	r0.y = dot(SunVector, r1);
+	r0.y = r0.y + HazePacked.y;
+	r0.w = 1;
+	r0.z = r0.w + HazePacked.y;
+	r0.z = 1 / r0.z;
+	r0.y = r0.y * r0.z;
+	r1.x = max(r0.y, 0);
+	r0.y = min(HazePacked2.x, r1.x);
+	r1.x = max(abs(r0.y), 0.0001);
+	r0.y = pow(r1.x, HazePacked.x);
+	r0.yzw = r0.y * HazeColor.xyz;
+	r1.x = dot(i.texcoord1, i.texcoord1);
+	r1.x = 1 / sqrt(r1.x);
+	r0.x = r0.x * r1.x;
+	r1 = tex2D(SceneColorTexture, i.texcoord);
+	r0.x = r0.x * r1.w;
+	r2.x = min(r0.x, 65535);
+	r0.x = 1 / HazePacked.w;
+	r0.x = r2.x * r0.x;
+	r2.x = -r2.x + HazePacked2.w;
+	r2.y = max(abs(r0.x), 0.0001);
+	r0.x = pow(r2.y, HazePacked.z);
+	r2.y = min(r0.x, 500);
+	r0.xyz = r0.yzw * r2.y;
+	r2.yzw = max(r0.xyz, TotalClampLow.x);
+	r0.x = (r2.x >= 0) ? HazePacked2.y : HazePacked2.z;
+	r3.xyz = min(r0.x, r2.yzw);
+	o.xyz = Multiplier.x * r3.xyz + r1.xyz;
+	o.w = r1.w;
+
+	return o;
+}
