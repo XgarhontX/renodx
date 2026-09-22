@@ -753,6 +753,36 @@ float3 ApplyPerChannelCorrection(
   return final_color;
 }
 
+// Ported from XgarhontX's ApplyPerChannelCorrection_Internal (Shrimple renodx.glsl).
+// Needed by src/games/battlefield4/shaders/common.hlsl.
+struct ApplyPerChannelCorrectionResult {
+  float3 color;
+  float tonemapped_luminance;
+};
+
+ApplyPerChannelCorrectionResult ApplyPerChannelCorrectionInternal(
+    float3 untonemapped,
+    float3 per_channel_color,
+    float blowout_restoration = 0.5f,
+    float hue_correction_strength = 1.f,
+    float chrominance_correction_strength = 1.f,
+    float hue_shift_strength = 0.5f) {
+  ApplyPerChannelCorrectionResult result;
+
+  const float tonemapped_luminance = renodx::color::y::from::BT709(abs(per_channel_color));
+  result.tonemapped_luminance = tonemapped_luminance;
+
+  result.color = ApplyPerChannelCorrection(
+      untonemapped,
+      per_channel_color,
+      blowout_restoration,
+      hue_correction_strength,
+      chrominance_correction_strength,
+      hue_shift_strength);
+
+  return result;
+}
+
 float3 ComputeUntonemappedGraded(float3 untonemapped, float3 graded_sdr_color, float3 neutral_sdr_color, Config config) {
   [branch]
   if (config.color_grade_strength == 0) {

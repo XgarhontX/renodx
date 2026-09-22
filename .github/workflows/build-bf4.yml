@@ -1,0 +1,20 @@
+name: build-bf4
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Get Slang
+        run: |
+          curl -L -o slang.zip https://github.com/shader-slang/slang/releases/download/v2025.10.3/slang-2025.10.3-windows-x86_64.zip
+          powershell -Command "Expand-Archive slang.zip slang_temp -Force; New-Item -ItemType Directory -Force bin | Out-Null; Copy-Item slang_temp\bin\* bin -Force"
+      - run: cmake --preset vs-x64
+      - run: cmake --build --preset vs-x64-release --target battlefield4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: renodx-battlefield4
+          path: build.vs/**/*.addon64
+          if-no-files-found: error
